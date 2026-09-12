@@ -1,4 +1,16 @@
 package br_com_savepoint.repository;
 
-public class LojaRepository {
+import br_com_savepoint.model.Loja;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface LojaRepository extends JpaRepository<Loja, Long> {
+
+    Optional<Loja> findByNomeIgnoreCase(String nome);
+
+    List<Loja> findByNomeContainingIgnoreCase(String nome);
 }
