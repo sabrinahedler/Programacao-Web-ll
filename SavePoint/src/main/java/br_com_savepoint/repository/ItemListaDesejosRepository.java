@@ -1,7 +1,7 @@
 
 package br_com_savepoint.repository;
 
-import br.com.savepoint.model.ItemListaDesejos;
+import br_com_savepoint.model.ItemListaDesejos;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

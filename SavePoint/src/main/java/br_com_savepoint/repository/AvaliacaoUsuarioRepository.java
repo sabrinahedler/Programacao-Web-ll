@@ -1,4 +1,3 @@
-
 package br_com_savepoint.repository;
 
 import br_com_savepoint.model.AvaliacaoUsuario;
