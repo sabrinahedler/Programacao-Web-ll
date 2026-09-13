@@ -14,16 +14,21 @@ public class ListaDesejos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne
+    @JoinColumn(name = "usuario_id", nullable = true)
+    private Usuario usuario;
+
+    @OneToMany(mappedBy = "listaDesejos", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ItemListaDesejos> jogos = new ArrayList<>();
+
     public ListaDesejos() {
     }
 
-    @OneToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
-    private Usuario usuario; 
-
-    // relacionamento 1 para muitos com a classe ItemListaDesejos
-    @OneToMany(mappedBy = "listaDesejos", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemListaDesejos> jogos = new ArrayList<>();
+    public ListaDesejos(Long id, Usuario usuario, List<ItemListaDesejos> jogos) {
+        this.id = id;
+        this.usuario = usuario;
+        this.jogos = jogos;
+    }
 
     public boolean adicionarJogo(Jogo jogo) {
         ItemListaDesejos novoItem = new ItemListaDesejos();
