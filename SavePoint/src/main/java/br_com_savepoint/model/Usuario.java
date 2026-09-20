@@ -1,102 +1,54 @@
 package br_com_savepoint.model;
-import java.time.LocalDateTime;
 
+import jakarta.persistence.*;
+import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@Entity
+@Table(name = "tb_usuario")
 public class Usuario {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String nome;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String senha;
     private String telefone;
-    private LocalDateTime dataCadastro;
+    private LocalDateTime dataCadastro = LocalDateTime.now();
     private LocalDateTime ultimoAcesso;
-    private Boolean ativo;
+    private Boolean ativo = true;
 
-    
-    
+    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ListaDesejos listaDesejos;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<AvaliacaoUsuario> avaliacoes;
+
     public Usuario() {
-     this.ativo = true;
-    this.dataCadastro = LocalDateTime.now();
-    }
-
-       public Usuario(Long id, String nome, String email, String senha, String telefone) {
-        this.id = id;
-        this.nome = nome;
-        this.email = email;
-        this.senha = senha;
-        this.telefone = telefone;
         this.ativo = true;
         this.dataCadastro = LocalDateTime.now();
     }
 
-    // GET/SET 
-    
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
+    public Usuario(Long id, String nome, String email, String senha, String telefone, LocalDateTime dataCadastro, LocalDateTime ultimoAcesso, Boolean ativo, ListaDesejos listaDesejos, List<AvaliacaoUsuario> avaliacoes) {
         this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
         this.senha = senha;
-    }
-
-    public String getTelefone() {
-        return telefone;
-    }
-
-    public void setTelefone(String telefone) {
         this.telefone = telefone;
-    }
-
-    public LocalDateTime getDataCadastro() {
-        return dataCadastro;
-    }
-
-    public void setDataCadastro(LocalDateTime dataCadastro) {
         this.dataCadastro = dataCadastro;
-    }
-
-    public LocalDateTime getUltimoAcesso() {
-        return ultimoAcesso;
-    }
-
-    public void setUltimoAcesso(LocalDateTime ultimoAcesso) {
         this.ultimoAcesso = ultimoAcesso;
-    }
-
-    public Boolean getAtivo() {
-        return ativo;
-    }
-
-    public void setAtivo(Boolean ativo) {
         this.ativo = ativo;
+        this.listaDesejos = listaDesejos;
+        this.avaliacoes = avaliacoes;
     }
 
-    // MÉTODOS
-    
     public void marcarAcesso() {
         this.ultimoAcesso = LocalDateTime.now();
     }

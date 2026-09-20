@@ -24,22 +24,6 @@ public class Jogo {
     private String desenvolvedora;
     private String genero;
 
-    public Jogo() {
-    }
-
-    public Jogo(Long id, String titulo, String descricao, LocalDate dataLancamento, String imagemCapa, String classificacaoIndicativa, String desenvolvedora, String genero, List<OfertaJogo> ofertas) {
-        this.id = id;
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.dataLancamento = dataLancamento;
-        this.imagemCapa = imagemCapa;
-        this.classificacaoIndicativa = classificacaoIndicativa;
-        this.desenvolvedora = desenvolvedora;
-        this.genero = genero;
-        this.ofertas = ofertas;
-    }
-
-//Sujeito a mudanças conforme demais criações de classes.
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "requisitos_minimos_id")
     private RequisitosMinimos requisitosMinimos;
@@ -53,4 +37,22 @@ public class Jogo {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "resumo_avaliacao_id")
     private ResumoAvaliacao resumoAvaliacao;
+
+    public Jogo() {
+    }
+
+    public Jogo(Long id, String titulo, String descricao, LocalDate dataLancamento, String imagemCapa, String classificacaoIndicativa, String desenvolvedora, String genero, RequisitosMinimos requisitosMinimos, List<OfertaJogo> ofertas, List<AvaliacaoUsuario> avaliacoes, ResumoAvaliacao resumoAvaliacao) {
+        this.id = id;
+        this.titulo = titulo;
+        this.descricao = descricao;
+        this.dataLancamento = dataLancamento;
+        this.imagemCapa = imagemCapa;
+        this.classificacaoIndicativa = classificacaoIndicativa;
+        this.desenvolvedora = desenvolvedora;
+        this.genero = genero;
+        this.requisitosMinimos = requisitosMinimos;
+        this.ofertas = ofertas;
+        this.avaliacoes = avaliacoes;
+        this.resumoAvaliacao = resumoAvaliacao;
+    }
 }

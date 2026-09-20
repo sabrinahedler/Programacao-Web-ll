@@ -15,16 +15,22 @@ public class ItemListaDesejos {
     private double precoAlerta;
     private boolean notificarOferta;
 
-    public ItemListaDesejos() {
-    }
-
-    // Liga esse item a uma Lista de Desejos específica
     @ManyToOne
     @JoinColumn(name = "lista_desejos_id", nullable = false)
     private ListaDesejos listaDesejos;
 
-    // Liga esse item a um Jogo específico
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
+
+    public ItemListaDesejos() {
+    }
+
+    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta, ListaDesejos listaDesejos, Jogo jogo) {
+        this.id = id;
+        this.precoAlerta = precoAlerta;
+        this.notificarOferta = notificarOferta;
+        this.listaDesejos = listaDesejos;
+        this.jogo = jogo;
+    }
 }

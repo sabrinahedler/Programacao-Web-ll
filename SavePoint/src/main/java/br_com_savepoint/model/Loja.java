@@ -17,8 +17,10 @@ public class Loja {
     private String urlLoja;
     private String urlLogo;
 
-    public Loja () {
+    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL)
+    private List<OfertaJogo> ofertas;
 
+    public Loja () {
     }
 
     public Loja (Long id, String nome, String urlLoja, String urlLogo) {
@@ -27,7 +29,4 @@ public class Loja {
         this.urlLoja = urlLoja;
         this.urlLogo = urlLogo;
     }
-
-    @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL)
-    private List<OfertaJogo> ofertas;
 }

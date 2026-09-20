@@ -17,10 +17,19 @@ public class RequisitosMinimos {
     private String placaDeVideo;
     private String sistemaOperacional;
 
-    public RequisitosMinimos() {
-    }
-
     // Opcional: cria a ligação de volta para a classe Jogo
     @OneToOne(mappedBy = "requisitosMinimos")
     private Jogo jogo;
+
+    public RequisitosMinimos() {
+    }
+
+    public RequisitosMinimos(Long id, String processador, String memoria,  String placaDeVideo, String sistemaOperacional, Jogo jogo) {
+        this.id = id;
+        this.processador = processador;
+        this.memoria = memoria;
+        this.placaDeVideo = placaDeVideo;
+        this.sistemaOperacional = sistemaOperacional;
+        this.jogo = jogo;
+    }
 }

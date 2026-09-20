@@ -3,7 +3,6 @@ package br_com_savepoint.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @Entity
@@ -20,4 +19,14 @@ public class Historico {
     @ManyToOne
     @JoinColumn(name = "oferta_id", nullable = false)
     private OfertaJogo oferta;
+
+    public Historico() {
+    }
+
+    public Historico(Long id, LocalDateTime data, double preco, OfertaJogo oferta) {
+        this.id = id;
+        this.data = data;
+        this.preco = preco;
+        this.oferta = oferta;
+    }
 }
