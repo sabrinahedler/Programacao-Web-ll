@@ -19,6 +19,13 @@ public interface AvaliacaoUsuarioRepository extends JpaRepository<AvaliacaoUsuar
 
     void deleteByUsuarioId(Long usuarioId);
 
+    long countByJogoId(Long jogoId);
+
     @Query("SELECT AVG(a.nota) FROM AvaliacaoUsuario a WHERE a.jogo.id = :jogoId")
     Double calcularMediaJogo(@Param("jogoId") Long jogoId);
+
+    // NOVO: Calcula o percentual de recomendação (nota >= 4)
+    @Query("SELECT (COUNT(a) * 100.0 / (SELECT COUNT(b) FROM AvaliacaoUsuario b WHERE b.jogo.id = :jogoId)) " +
+           "FROM AvaliacaoUsuario a WHERE a.jogo.id = :jogoId AND a.nota >= 4")
+    Double calcularPercentualRecomendacao(@Param("jogoId") Long jogoId);
 }
