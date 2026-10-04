@@ -39,12 +39,6 @@ public class OfertaJogoController {
         return ResponseEntity.ok(ofertasComparadas);
     }
 
-    @GetMapping("/ofertas/{id}/historico")
-    public ResponseEntity<List<Historico>> buscarHistorico(@PathVariable("id") Long ofertaId) {
-        List<Historico> historicoPrecos = historicoService.buscarPorOfertaId(ofertaId);
-        return ResponseEntity.ok(historicoPrecos);
-    }
-
     @GetMapping("/ofertas/{id}")
     public ResponseEntity<OfertaJogo> buscarPorId(@PathVariable("id") Long ofertaId) {
         Optional<OfertaJogo> ofertaOptional = ofertaJogoService.buscarPorId(ofertaId);

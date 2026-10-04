@@ -1,7 +1,7 @@
 package br_com_savepoint.controller;
 
 import br_com_savepoint.model.AvaliacaoUsuario;
-import br_com_savepoint.service.AvaliacaoUsuarioServico;
+import br_com_savepoint.service.AvaliacaoUsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import java.util.List;
 public class AvaliacaoUsuarioController {
 
     @Autowired
-    private AvaliacaoUsuarioServico avaliacaoServico;
+    private AvaliacaoUsuarioService avaliacaoServico;
 
     @GetMapping
     public ResponseEntity<List<AvaliacaoUsuario>> listarTodas() {
