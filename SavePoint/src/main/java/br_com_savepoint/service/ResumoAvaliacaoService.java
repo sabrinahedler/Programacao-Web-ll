@@ -19,30 +19,22 @@ public class ResumoAvaliacaoService {
     private final JogoRepository jogoRepository;
     private final AvaliacaoUsuarioRepository avaliacaoUsuarioRepository;
 
-    public ResumoAvaliacaoService(
-            ResumoAvaliacaoRepository resumoAvaliacaoRepository,
-            JogoRepository jogoRepository,
-            AvaliacaoUsuarioRepository avaliacaoUsuarioRepository) {
+    public ResumoAvaliacaoService(ResumoAvaliacaoRepository resumoAvaliacaoRepository, JogoRepository jogoRepository, AvaliacaoUsuarioRepository avaliacaoUsuarioRepository) {
         this.resumoAvaliacaoRepository = resumoAvaliacaoRepository;
         this.jogoRepository = jogoRepository;
         this.avaliacaoUsuarioRepository = avaliacaoUsuarioRepository;
     }
 
-    // POST /jogos/{id}/resumo
     public ResumoAvaliacao gerarResumo(Long jogoId) {
         Optional<Jogo> jogoOptional = jogoRepository.findById(jogoId);
-
         if (jogoOptional.isEmpty()) {
             throw new IllegalArgumentException("Jogo não encontrado com o ID: " + jogoId);
         }
-
         Jogo jogo = jogoOptional.get();
-        List<AvaliacaoUsuario> avaliacoes =
-                avaliacaoUsuarioRepository.findByJogoId(jogoId);
 
+        List<AvaliacaoUsuario> avaliacoes = avaliacaoUsuarioRepository.findByJogoId(jogoId);
         ResumoAvaliacao resumo;
-        Optional<ResumoAvaliacao> resumoExistente =
-                resumoAvaliacaoRepository.findByJogoId(jogoId);
+        Optional<ResumoAvaliacao> resumoExistente = resumoAvaliacaoRepository.findByJogoId(jogoId);
 
         if (resumoExistente.isPresent()) {
             resumo = resumoExistente.get();
@@ -55,7 +47,6 @@ public class ResumoAvaliacaoService {
 
         for (AvaliacaoUsuario avaliacao : avaliacoes) {
             somaNotas += avaliacao.getNota();
-
             if (avaliacao.isRecomendado()) {
                 quantidadeRecomendacoes++;
             }
@@ -70,77 +61,52 @@ public class ResumoAvaliacaoService {
             resumo.setPercentualRecomendacao(0);
         } else {
             double media = somaNotas / avaliacoes.size();
-            double percentual =
-                    (quantidadeRecomendacoes * 100.0) / avaliacoes.size();
-
+            double percentual = (quantidadeRecomendacoes * 100.0) / avaliacoes.size();
             resumo.setNotaMedia(media);
             resumo.setPercentualRecomendacao(percentual);
         }
 
-        resumo.setResumoGeradoIA(
-                "Resumo gerado com base nas avaliações cadastradas para o jogo.");
+        resumo.setResumoGeradoIA("Resumo gerado com base nas avaliações cadastradas para o jogo.");
 
         return resumoAvaliacaoRepository.save(resumo);
     }
 
-    // GET /jogos/{id}/resumo
     public Optional<ResumoAvaliacao> buscarResumo(Long jogoId) {
         if (!jogoRepository.existsById(jogoId)) {
             return Optional.empty();
         }
-
         return resumoAvaliacaoRepository.findByJogoId(jogoId);
     }
 
-    // PUT /jogos/{id}/resumo
-    public Optional<ResumoAvaliacao> atualizarResumo(
-            Long jogoId,
-            ResumoAvaliacao resumoDados) {
-
+    public Optional<ResumoAvaliacao> atualizarResumo(Long jogoId, ResumoAvaliacao resumoDados) {
         Optional<ResumoAvaliacao> resumoOptional = buscarResumo(jogoId);
 
         if (resumoOptional.isEmpty()) {
             return Optional.empty();
         }
-
         ResumoAvaliacao resumoExistente = resumoOptional.get();
 
         if (resumoDados.getPrincipaisElogios() != null) {
-            resumoExistente.setPrincipaisElogios(
-                    resumoDados.getPrincipaisElogios());
+            resumoExistente.setPrincipaisElogios(resumoDados.getPrincipaisElogios());
         }
 
         if (resumoDados.getPrincipaisCriticas() != null) {
-            resumoExistente.setPrincipaisCriticas(
-                    resumoDados.getPrincipaisCriticas());
+            resumoExistente.setPrincipaisCriticas(resumoDados.getPrincipaisCriticas());
         }
 
-        if (resumoDados.getResumoGeradoIA() != null
-                && !resumoDados.getResumoGeradoIA().trim().isEmpty()) {
-            resumoExistente.setResumoGeradoIA(
-                    resumoDados.getResumoGeradoIA());
+        if (resumoDados.getResumoGeradoIA() != null && !resumoDados.getResumoGeradoIA().trim().isEmpty()) {
+            resumoExistente.setResumoGeradoIA(resumoDados.getResumoGeradoIA());
         }
-
         return Optional.of(resumoAvaliacaoRepository.save(resumoExistente));
     }
 
-    // DELETE /jogos/{jogoId}/resumo/{resumoId}
-    public boolean deletarResumo(Long jogoId, Long resumoId) {
-        Optional<ResumoAvaliacao> resumoOptional =
-                resumoAvaliacaoRepository.findById(resumoId);
+    public boolean deletarResumo(Long jogoId) {
+        Optional<ResumoAvaliacao> resumoOptional = resumoAvaliacaoRepository.findByJogoId(jogoId);
 
-        if (resumoOptional.isEmpty()) {
-            return false;
+        if (resumoOptional.isPresent()) {
+            resumoAvaliacaoRepository.delete(resumoOptional.get());
+            return true;
         }
-
-        ResumoAvaliacao resumo = resumoOptional.get();
-
-        if (resumo.getJogo() == null
-                || !resumo.getJogo().getId().equals(jogoId)) {
-            return false;
-        }
-
-        resumoAvaliacaoRepository.deleteById(resumoId);
-        return true;
+        return false;
     }
 }

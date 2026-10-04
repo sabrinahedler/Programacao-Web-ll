@@ -12,5 +12,5 @@ public interface ItemListaDesejosRepository extends JpaRepository<ItemListaDesej
 
     List<ItemListaDesejos> findByListaDesejosId(Long listaDesejosId);
 
-    void deleteByListaDesejosIdAndJogoId(Long listaDesejosId, Long jogoId);
+    List<ItemListaDesejos> findByJogoId(Long jogoId);
 }

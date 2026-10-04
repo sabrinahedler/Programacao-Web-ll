@@ -26,7 +26,6 @@ public class ItemListaDesejosService {
         this.jogoRepository = jogoRepository;
     }
 
-    // POST /usuarios/{id}/lista-desejos/itens
     public ItemListaDesejos adicionarItem(
             Long usuarioId,
             ItemListaDesejos itemDados) {
@@ -62,41 +61,26 @@ public class ItemListaDesejosService {
         return itemListaDesejosRepository.save(itemDados);
     }
 
-    // GET /usuarios/{id}/lista-desejos/itens/{itemId}
-    public Optional<ItemListaDesejos> buscarItem(
-            Long usuarioId,
-            Long itemId) {
-
-        Optional<ListaDesejos> listaOptional =
-                listaDesejosRepository.findByUsuarioId(usuarioId);
+    public Optional<ItemListaDesejos> buscarItem(Long usuarioId, Long itemId) {
+        Optional<ListaDesejos> listaOptional = listaDesejosRepository.findByUsuarioId(usuarioId);
 
         if (listaOptional.isEmpty()) {
             return Optional.empty();
         }
-
-        Optional<ItemListaDesejos> itemOptional =
-                itemListaDesejosRepository.findById(itemId);
+        Optional<ItemListaDesejos> itemOptional = itemListaDesejosRepository.findById(itemId);
 
         if (itemOptional.isEmpty()) {
             return Optional.empty();
         }
-
         ItemListaDesejos item = itemOptional.get();
 
-        if (item.getListaDesejos() == null
-                || !item.getListaDesejos().getId().equals(listaOptional.get().getId())) {
+        if (item.getListaDesejos() == null || !item.getListaDesejos().getId().equals(listaOptional.get().getId())) {
             return Optional.empty();
         }
-
         return Optional.of(item);
     }
 
-    // PUT /usuarios/{id}/lista-desejos/itens/{itemId}
-    public Optional<ItemListaDesejos> atualizarItem(
-            Long usuarioId,
-            Long itemId,
-            ItemListaDesejos itemDados) {
-
+    public Optional<ItemListaDesejos> atualizarItem(Long usuarioId, Long itemId, ItemListaDesejos itemDados) {
         Optional<ItemListaDesejos> itemOptional = buscarItem(usuarioId, itemId);
 
         if (itemOptional.isEmpty()) {
@@ -112,5 +96,15 @@ public class ItemListaDesejosService {
         itemExistente.setNotificarOferta(itemDados.isNotificarOferta());
 
         return Optional.of(itemListaDesejosRepository.save(itemExistente));
+    }
+
+    public boolean removerItem(Long usuarioId, Long itemId) {
+        Optional<ItemListaDesejos> itemOptional = buscarItem(usuarioId, itemId);
+
+        if (itemOptional.isPresent()) {
+            itemListaDesejosRepository.delete(itemOptional.get());
+            return true;
+        }
+        return false;
     }
 }

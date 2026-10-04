@@ -22,18 +22,13 @@ public class ListaDesejosService {
     private final UsuarioRepository usuarioRepository;
     private final JogoRepository jogoRepository;
 
-    public ListaDesejosService(
-            ListaDesejosRepository listaDesejosRepository,
-            ItemListaDesejosRepository itemListaDesejosRepository,
-            UsuarioRepository usuarioRepository,
-            JogoRepository jogoRepository) {
+    public ListaDesejosService(ListaDesejosRepository listaDesejosRepository, ItemListaDesejosRepository itemListaDesejosRepository, UsuarioRepository usuarioRepository, JogoRepository jogoRepository) {
         this.listaDesejosRepository = listaDesejosRepository;
         this.itemListaDesejosRepository = itemListaDesejosRepository;
         this.usuarioRepository = usuarioRepository;
         this.jogoRepository = jogoRepository;
     }
 
-    // POST /usuarios/{id}/lista-desejos/
     public ListaDesejos criarLista(Long usuarioId) {
         Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
 
@@ -41,37 +36,27 @@ public class ListaDesejosService {
             throw new IllegalArgumentException("Usuário não encontrado com o ID: " + usuarioId);
         }
 
-        Optional<ListaDesejos> listaExistente =
-                listaDesejosRepository.findByUsuarioId(usuarioId);
+        Optional<ListaDesejos> listaExistente = listaDesejosRepository.findByUsuarioId(usuarioId);
 
         if (listaExistente.isPresent()) {
             return listaExistente.get();
         }
-
         ListaDesejos novaLista = new ListaDesejos();
         novaLista.setUsuario(usuarioOptional.get());
 
         return listaDesejosRepository.save(novaLista);
     }
 
-    // GET /jogos/{idJogo}/usuarios-interessados
     public List<Usuario> buscarUsuariosInteressados(Long jogoId) {
-        Optional<Jogo> jogoOptional = jogoRepository.findById(jogoId);
-
-        if (jogoOptional.isEmpty()) {
+        if (!jogoRepository.existsById(jogoId)) {
             throw new IllegalArgumentException("Jogo não encontrado com o ID: " + jogoId);
         }
 
+        List<ItemListaDesejos> itens = itemListaDesejosRepository.findByJogoId(jogoId);
         List<Usuario> usuariosInteressados = new ArrayList<>();
-        List<ItemListaDesejos> itens = itemListaDesejosRepository.findAll();
 
         for (ItemListaDesejos item : itens) {
-            if (item.getJogo() != null
-                    && item.getJogo().getId() != null
-                    && item.getJogo().getId().equals(jogoId)
-                    && item.getListaDesejos() != null
-                    && item.getListaDesejos().getUsuario() != null) {
-
+            if (item.isNotificarOferta() && item.getListaDesejos() != null && item.getListaDesejos().getUsuario() != null) {
                 Usuario usuario = item.getListaDesejos().getUsuario();
 
                 if (!usuariosInteressados.contains(usuario)) {
@@ -79,25 +64,19 @@ public class ListaDesejosService {
                 }
             }
         }
-
         return usuariosInteressados;
     }
 
-    // DELETE /usuarios/{usuarioId}/lista-desejos/{listaId}
     public boolean deletarLista(Long usuarioId, Long listaId) {
         Optional<ListaDesejos> listaOptional = listaDesejosRepository.findById(listaId);
-
         if (listaOptional.isEmpty()) {
             return false;
         }
-
         ListaDesejos lista = listaOptional.get();
-
         if (lista.getUsuario() == null
                 || !lista.getUsuario().getId().equals(usuarioId)) {
             return false;
         }
-
         listaDesejosRepository.deleteById(listaId);
         return true;
     }

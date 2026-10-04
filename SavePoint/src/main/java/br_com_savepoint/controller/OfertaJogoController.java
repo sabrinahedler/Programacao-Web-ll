@@ -1,6 +1,5 @@
 package br_com_savepoint.controller;
 
-import br_com_savepoint.model.Historico;
 import br_com_savepoint.model.OfertaJogo;
 import br_com_savepoint.service.HistoricoService;
 import br_com_savepoint.service.OfertaJogoService;
@@ -16,11 +15,9 @@ import java.util.Optional;
 public class OfertaJogoController {
 
     private final OfertaJogoService ofertaJogoService;
-    private final HistoricoService historicoService;
 
     public OfertaJogoController(OfertaJogoService ofertaJogoService, HistoricoService historicoService) {
         this.ofertaJogoService = ofertaJogoService;
-        this.historicoService = historicoService;
     }
 
     @PostMapping("/jogos/{id}/ofertas")
@@ -46,6 +43,15 @@ public class OfertaJogoController {
         if (ofertaOptional.isPresent()) {
             OfertaJogo ofertaEncontrada = ofertaOptional.get();
             return ResponseEntity.ok(ofertaEncontrada);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/ofertas/{id}")
+    public ResponseEntity<Void> deletarOferta(@PathVariable("id") Long ofertaId) {
+        boolean deletado = ofertaJogoService.deletar(ofertaId);
+        if (deletado) {
+            return ResponseEntity.noContent().build();
         }
 
         return ResponseEntity.notFound().build();

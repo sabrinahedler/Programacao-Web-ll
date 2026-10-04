@@ -8,8 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface ResumoAvaliacaoRepository extends JpaRepository<ResumoAvaliacao, Long> {
-
-
     Optional<ResumoAvaliacao> findByJogoId(Long jogoId);
 
     void deleteByJogoId(Long jogoId);

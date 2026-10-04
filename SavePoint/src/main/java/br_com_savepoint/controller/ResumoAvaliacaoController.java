@@ -1,5 +1,6 @@
 package br_com_savepoint.controller;
 
+import br_com_savepoint.model.ResumoAvaliacao;
 import br_com_savepoint.service.ResumoAvaliacaoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,67 +21,46 @@ public class ResumoAvaliacaoController {
 
     private final ResumoAvaliacaoService resumoAvaliacaoService;
 
-    public ResumoAvaliacaoController(
-            ResumoAvaliacaoService resumoAvaliacaoService) {
+    public ResumoAvaliacaoController(ResumoAvaliacaoService resumoAvaliacaoService) {
         this.resumoAvaliacaoService = resumoAvaliacaoService;
     }
 
     @PostMapping("/jogos/{id}/resumo")
-    public ResponseEntity<br_com_savepoint.model.ResumoAvaliacao> gerarResumo(
-            @PathVariable("id") Long id) {
-
+    public ResponseEntity<ResumoAvaliacao> gerarResumo(@PathVariable("id") Long id) {
         try {
-            br_com_savepoint.model.ResumoAvaliacao resumo =
-                    resumoAvaliacaoService.gerarResumo(id);
-
+            ResumoAvaliacao resumo = resumoAvaliacaoService.gerarResumo(id);
             return ResponseEntity.status(HttpStatus.CREATED).body(resumo);
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @GetMapping("/jogos/{id}/resumo")
-    public ResponseEntity<br_com_savepoint.model.ResumoAvaliacao> buscarResumo(
-            @PathVariable("id") Long id) {
-
-        Optional<br_com_savepoint.model.ResumoAvaliacao> resumoOptional =
-                resumoAvaliacaoService.buscarResumo(id);
-
+    public ResponseEntity<br_com_savepoint.model.ResumoAvaliacao> buscarResumo(@PathVariable("id") Long id) {
+        Optional<ResumoAvaliacao> resumoOptional = resumoAvaliacaoService.buscarResumo(id);
         if (resumoOptional.isPresent()) {
             return ResponseEntity.ok(resumoOptional.get());
         }
-
         return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/jogos/{id}/resumo")
-    public ResponseEntity<br_com_savepoint.model.ResumoAvaliacao> atualizarResumo(
-            @PathVariable("id") Long id,
-            @RequestBody br_com_savepoint.model.ResumoAvaliacao resumoDados) {
-
-        Optional<br_com_savepoint.model.ResumoAvaliacao> resumoOptional =
-                resumoAvaliacaoService.atualizarResumo(id, resumoDados);
-
+    public ResponseEntity<ResumoAvaliacao> atualizarResumo(@PathVariable("id") Long id, @RequestBody br_com_savepoint.model.ResumoAvaliacao resumoDados) {
+        Optional<ResumoAvaliacao> resumoOptional = resumoAvaliacaoService.atualizarResumo(id, resumoDados);
         if (resumoOptional.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(resumoOptional.get());
         }
-
         return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/jogos/{jogoId}/resumo/{resumoId}")
-    public ResponseEntity<Void> deletarResumo(
-            @PathVariable("jogoId") Long jogoId,
-            @PathVariable("resumoId") Long resumoId) {
-
-        boolean deletado =
-                resumoAvaliacaoService.deletarResumo(jogoId, resumoId);
-
+    public ResponseEntity<Void> deletarResumo(@PathVariable("jogoId") Long jogoId, @PathVariable("resumoId") Long resumoId) {
+        boolean deletado = resumoAvaliacaoService.deletarResumo(jogoId);
         if (deletado) {
             return ResponseEntity.noContent().build();
         }
-
         return ResponseEntity.notFound().build();
     }
 }

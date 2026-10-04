@@ -29,23 +29,19 @@ public class LojaController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         boolean deletado = lojaService.deletar(id);
-
         if (deletado) {
             return ResponseEntity.noContent().build();
         }
-
         return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Loja> atualizar(@PathVariable Long id, @RequestBody Loja lojaAtualizada) {
         Optional<Loja> lojaOptional = lojaService.atualizar(id, lojaAtualizada);
-
         if (lojaOptional.isPresent()) {
             Loja lojaModificada = lojaOptional.get();
             return ResponseEntity.status(HttpStatus.CREATED).body(lojaModificada);
         }
-
         return ResponseEntity.notFound().build();
     }
 
