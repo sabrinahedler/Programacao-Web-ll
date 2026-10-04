@@ -26,11 +26,29 @@ public class ItemListaDesejos {
     public ItemListaDesejos() {
     }
 
-    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta, ListaDesejos listaDesejos, Jogo jogo) {
+    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta) {
+        this.id = id;
+        this.precoAlerta = precoAlerta;
+        this.notificarOferta = notificarOferta;
+    }
+
+    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta,
+                            ListaDesejos listaDesejos, Jogo jogo) {
         this.id = id;
         this.precoAlerta = precoAlerta;
         this.notificarOferta = notificarOferta;
         this.listaDesejos = listaDesejos;
         this.jogo = jogo;
+    }
+
+    @Override
+    public String toString() {
+        return "ItemListaDesejos{" +
+                "id=" + id +
+                ", precoAlerta=" + precoAlerta +
+                ", notificarOferta=" + notificarOferta +
+                ", jogoId=" + (jogo != null ? jogo.getId() : null) +
+                ", listaDesejosId=" + (listaDesejos != null ? listaDesejos.getId() : null) +
+                '}';
     }
 }

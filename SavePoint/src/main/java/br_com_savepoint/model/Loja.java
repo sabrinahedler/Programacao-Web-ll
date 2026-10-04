@@ -20,13 +20,21 @@ public class Loja {
     @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL)
     private List<OfertaJogo> ofertas;
 
-    public Loja () {
+    public Loja() {
     }
 
-    public Loja (Long id, String nome, String urlLoja, String urlLogo) {
+    public Loja(Long id, String nome, String urlLoja, String urlLogo) {
         this.id = id;
         this.nome = nome;
         this.urlLoja = urlLoja;
         this.urlLogo = urlLogo;
+    }
+
+    public Loja(Long id, String nome, String urlLoja, String urlLogo, List<OfertaJogo> ofertas) {
+        this.id = id;
+        this.nome = nome;
+        this.urlLoja = urlLoja;
+        this.urlLogo = urlLogo;
+        this.ofertas = ofertas;
     }
 }

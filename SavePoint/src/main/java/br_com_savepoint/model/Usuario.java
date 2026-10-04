@@ -69,6 +69,7 @@ public class Usuario {
                 ", email='" + email + '\'' +
                 ", telefone='" + telefone + '\'' +
                 ", dataCadastro=" + dataCadastro +
+                ", ultimoAcesso=" + ultimoAcesso +
                 ", ativo=" + ativo +
                 '}';
     }

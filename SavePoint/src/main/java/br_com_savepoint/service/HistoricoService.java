@@ -44,12 +44,4 @@ public class HistoricoService {
 
         throw new IllegalArgumentException("Oferta não encontrada com o ID: " + ofertaId);
     }
-
-    public boolean deletarPorOfertaId(Long ofertaId) {
-        if (ofertaJogoRepository.existsById(ofertaId)) {
-            ofertaJogoRepository.deleteById(ofertaId);
-            return true;
-        }
-        return false;
-    }
 }

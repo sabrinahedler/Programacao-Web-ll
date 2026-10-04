@@ -1,6 +1,6 @@
 CREATE TABLE tb_jogo (
                          id BIGINT AUTO_INCREMENT PRIMARY KEY,
-                         titulo TEXT NOT NULL,
+                         titulo VARCHAR(255) NOT NULL,
                          descricao TEXT NOT NULL,
                          data_lancamento DATE NOT NULL,
                          imagem_capa VARCHAR(255),

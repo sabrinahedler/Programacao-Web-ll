@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -21,26 +23,25 @@ public class ResumoAvaliacao {
     @ElementCollection
     @CollectionTable(name = "tb_resumo_elogios", joinColumns = @JoinColumn(name = "resumo_id"))
     @Column(name = "elogio")
-    private String[] principaisElogios;
+    private List<String> principaisElogios = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "tb_resumo_criticas", joinColumns = @JoinColumn(name = "resumo_id"))
     @Column(name = "critica")
-    private String[] principaisCriticas;
+    private List<String> principaisCriticas = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")
     private String resumoGeradoIA;
 
     private LocalDate dataGeracao;
 
-    @OneToOne
-    @JoinColumn(name = "jogo_id", nullable = false)
+    @OneToOne(mappedBy = "resumoAvaliacao")
     private Jogo jogo;
 
     public ResumoAvaliacao() {
     }
 
-    public ResumoAvaliacao(Long id, double notaMedia, int totalAvaliacoes, double percentualRecomendacao, String[] principaisElogios, String[] principaisCriticas, String resumoGeradoIA, LocalDate dataGeracao, Jogo jogo) {
+    public ResumoAvaliacao(Long id, double notaMedia, int totalAvaliacoes, double percentualRecomendacao, List<String> principaisElogios, List<String> principaisCriticas, String resumoGeradoIA, LocalDate dataGeracao, Jogo jogo) {
         this.id = id;
         this.notaMedia = notaMedia;
         this.totalAvaliacoes = totalAvaliacoes;

@@ -15,9 +15,11 @@ public class Jogo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
     private String titulo;
+
+    @Column(columnDefinition = "TEXT")
     private String descricao;
+
     private LocalDate dataLancamento;
     private String imagemCapa;
     private String classificacaoIndicativa;

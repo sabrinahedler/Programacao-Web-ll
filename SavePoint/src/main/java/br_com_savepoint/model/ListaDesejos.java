@@ -30,21 +30,12 @@ public class ListaDesejos {
         this.jogos = jogos;
     }
 
-    public boolean adicionarJogo(Jogo jogo) {
-        ItemListaDesejos novoItem = new ItemListaDesejos();
-        novoItem.setJogo(jogo);
-        novoItem.setListaDesejos(this);
-        novoItem.setNotificarOferta(true); 
-        novoItem.setPrecoAlerta(0.0); 
-        
-        return this.jogos.add(novoItem);
+    public boolean adicionarJogo(ItemListaDesejos item) {
+        item.setListaDesejos(this);
+        return this.jogos.add(item);
     }
 
     public boolean removerJogo(Jogo jogo) {
         return this.jogos.removeIf(item -> item.getJogo().getId().equals(jogo.getId()));
-    }
-
-    public void notificarPromocao() {
-        // a lógica para envio de e-mail/notificação será implementada depois na camada de Service
     }
 }

@@ -32,21 +32,4 @@ public class HistoricoController {
         Historico novoRegistro = historicoService.registrarAlteracaoPreco(ofertaId, historicoDados.getPreco());
         return ResponseEntity.status(HttpStatus.CREATED).body(novoRegistro);
     }
-
-    @GetMapping("/ofertas/{id}/historico")
-    public ResponseEntity<List<Historico>> buscarHistorico(@PathVariable("id") Long ofertaId) {
-        List<Historico> historicoPrecos = historicoService.buscarPorOfertaId(ofertaId);
-        return ResponseEntity.ok(historicoPrecos);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarOferta(@PathVariable("id") Long ofertaId) {
-        boolean deletado = historicoService.deletarPorOfertaId(ofertaId);
-
-        if (deletado) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.notFound().build();
-    }
 }
