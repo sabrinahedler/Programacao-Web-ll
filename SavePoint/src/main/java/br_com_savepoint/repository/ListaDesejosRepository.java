@@ -1,4 +1,3 @@
-
 package br_com_savepoint.repository;
 
 import br_com_savepoint.model.ListaDesejos;
@@ -11,6 +10,4 @@ import java.util.Optional;
 public interface ListaDesejosRepository extends JpaRepository<ListaDesejos, Long> {
 
     Optional<ListaDesejos> findByUsuarioId(Long usuarioId);
-
-    void deleteByUsuarioId(Long usuarioId);
 }

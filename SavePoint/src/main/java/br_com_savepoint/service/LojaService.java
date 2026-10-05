@@ -1,13 +1,18 @@
 package br_com_savepoint.service;
 
+import br_com_savepoint.exception.RecursoNaoEncontradoException;
+import br_com_savepoint.exception.RegraNegocioException;
 import br_com_savepoint.model.Loja;
 import br_com_savepoint.repository.LojaRepository;
+import br_com_savepoint.util.Validacao;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
+/** Regras de negócio do cadastro de lojas. */
 @Service
+@Transactional
 public class LojaService {
 
     private final LojaRepository lojaRepository;
@@ -16,50 +21,52 @@ public class LojaService {
         this.lojaRepository = lojaRepository;
     }
 
+    /** Lista todas as lojas cadastradas. */
     public List<Loja> listarTodas() {
         return lojaRepository.findAll();
     }
 
-    public Optional<Loja> buscarPorId(Long id) {
-        return lojaRepository.findById(id);
+    /** Busca uma loja pelo identificador ou falha se ela não existir. */
+    public Loja buscarPorId(Long id) {
+        return lojaRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Loja não encontrada com o ID: " + id));
     }
 
+    /** Cadastra uma nova loja com nome único. */
     public Loja salvar(Loja loja) {
-        if (loja.getNome() == null || loja.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("O nome da loja não pode ser vazio.");
-        }
-
-        Optional<Loja> lojaExistente = lojaRepository.findByNomeIgnoreCase(loja.getNome());
-        if (lojaExistente.isPresent()) {
-            throw new IllegalArgumentException("Já existe uma loja cadastrada com este nome.");
-        }
-
+        validarCampos(loja);
+        validarNomeDisponivel(loja.getNome(), null);
+        loja.setId(null);
         return lojaRepository.save(loja);
     }
 
-    public Optional<Loja> atualizar(Long id, Loja lojaAtualizada) {
-        Optional<Loja> lojaOptional = lojaRepository.findById(id);
-
-        if (lojaOptional.isPresent()) {
-            Loja lojaExistente = lojaOptional.get();
-
-            lojaExistente.setNome(lojaAtualizada.getNome());
-            lojaExistente.setUrlLoja(lojaAtualizada.getUrlLoja());
-            lojaExistente.setUrlLogo(lojaAtualizada.getUrlLogo());
-
-            Loja lojaSalva = lojaRepository.save(lojaExistente);
-
-            return Optional.of(lojaSalva);
-        }
-
-        return Optional.empty();
+    /** Atualiza os dados de uma loja existente. */
+    public Loja atualizar(Long id, Loja dados) {
+        Loja loja = buscarPorId(id);
+        validarCampos(dados);
+        validarNomeDisponivel(dados.getNome(), id);
+        loja.setNome(dados.getNome());
+        loja.setUrlLoja(dados.getUrlLoja());
+        loja.setUrlLogo(dados.getUrlLogo());
+        return lojaRepository.save(loja);
     }
 
-    public boolean deletar(Long id) {
-        if (lojaRepository.existsById(id)) {
-            lojaRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    /** Remove uma loja e as ofertas associadas a ela. */
+    public void deletar(Long id) {
+        lojaRepository.delete(buscarPorId(id));
+    }
+
+    private void validarCampos(Loja loja) {
+        Validacao.exigirTexto(loja.getNome(), "nome");
+        Validacao.exigirTexto(loja.getUrlLoja(), "urlLoja");
+        Validacao.exigirTexto(loja.getUrlLogo(), "urlLogo");
+    }
+
+    private void validarNomeDisponivel(String nome, Long idAtual) {
+        lojaRepository.findByNomeIgnoreCase(nome.trim()).ifPresent(existente -> {
+            if (!existente.getId().equals(idAtual)) {
+                throw new RegraNegocioException("Já existe uma loja cadastrada com este nome.");
+            }
+        });
     }
 }

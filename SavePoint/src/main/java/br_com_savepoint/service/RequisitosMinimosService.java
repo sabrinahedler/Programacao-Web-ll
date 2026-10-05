@@ -1,74 +1,75 @@
 package br_com_savepoint.service;
 
+import br_com_savepoint.exception.RecursoNaoEncontradoException;
+import br_com_savepoint.exception.RegraNegocioException;
 import br_com_savepoint.model.Jogo;
 import br_com_savepoint.model.RequisitosMinimos;
-import br_com_savepoint.repository.JogoRepository;
 import br_com_savepoint.repository.RequisitosMinimosRepository;
+import br_com_savepoint.util.Validacao;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
-
+/** Regras de negócio dos requisitos mínimos de um jogo. */
 @Service
+@Transactional
 public class RequisitosMinimosService {
 
     private final RequisitosMinimosRepository requisitosRepository;
-    private final JogoRepository jogoRepository;
+    private final JogoService jogoService;
 
-    public RequisitosMinimosService(RequisitosMinimosRepository requisitosRepository, JogoRepository jogoRepository) {
+    public RequisitosMinimosService(RequisitosMinimosRepository requisitosRepository, JogoService jogoService) {
         this.requisitosRepository = requisitosRepository;
-        this.jogoRepository = jogoRepository;
+        this.jogoService = jogoService;
     }
 
-    public Optional<RequisitosMinimos> buscarPorJogoId(Long jogoId) {
-        return requisitosRepository.findByJogoId(jogoId);
+    /** Busca os requisitos mínimos de um jogo ou falha se ainda não existirem. */
+    public RequisitosMinimos buscarPorJogoId(Long jogoId) {
+        Jogo jogo = jogoService.buscarPorId(jogoId);
+        if (jogo.getRequisitosMinimos() == null) {
+            throw new RecursoNaoEncontradoException("O jogo " + jogoId + " não possui requisitos mínimos cadastrados.");
+        }
+        return jogo.getRequisitosMinimos();
     }
 
+    /** Cadastra os requisitos mínimos de um jogo que ainda não os possui. */
     public RequisitosMinimos salvar(Long jogoId, RequisitosMinimos requisitos) {
-        Optional<Jogo> jogoOptional = jogoRepository.findById(jogoId);
-
-        if (jogoOptional.isPresent()) {
-            Jogo jogo = jogoOptional.get();
-
-            requisitos.setJogo(jogo);
-            jogo.setRequisitosMinimos(requisitos);
-
-            RequisitosMinimos requisitosSalvos = requisitosRepository.save(requisitos);
-            jogoRepository.save(jogo);
-
-            return requisitosSalvos;
+        Jogo jogo = jogoService.buscarPorId(jogoId);
+        if (jogo.getRequisitosMinimos() != null) {
+            throw new RegraNegocioException("O jogo " + jogoId + " já possui requisitos mínimos cadastrados.");
         }
+        validarCampos(requisitos);
 
-        throw new IllegalArgumentException("Jogo não encontrado com o ID: " + jogoId);
+        requisitos.setId(null);
+        requisitos.setJogo(jogo);
+        RequisitosMinimos salvo = requisitosRepository.save(requisitos);
+        jogo.setRequisitosMinimos(salvo);
+        return salvo;
     }
 
-    public Optional<RequisitosMinimos> atualizar(Long jogoId, RequisitosMinimos novosDados) {
-        Optional<RequisitosMinimos> requisitosOptional = requisitosRepository.findByJogoId(jogoId);
+    /** Atualiza os requisitos mínimos existentes de um jogo. */
+    public RequisitosMinimos atualizar(Long jogoId, RequisitosMinimos dados) {
+        RequisitosMinimos requisitos = buscarPorJogoId(jogoId);
+        validarCampos(dados);
 
-        if (requisitosOptional.isPresent()) {
-            RequisitosMinimos existente = requisitosOptional.get();
-
-            existente.setProcessador(novosDados.getProcessador());
-            existente.setMemoria(novosDados.getMemoria());
-            existente.setPlacaDeVideo(novosDados.getPlacaDeVideo());
-            existente.setSistemaOperacional(novosDados.getSistemaOperacional());
-
-            return Optional.of(requisitosRepository.save(existente));
-        }
-        return Optional.empty();
+        requisitos.setProcessador(dados.getProcessador());
+        requisitos.setMemoria(dados.getMemoria());
+        requisitos.setPlacaDeVideo(dados.getPlacaDeVideo());
+        requisitos.setSistemaOperacional(dados.getSistemaOperacional());
+        return requisitosRepository.save(requisitos);
     }
 
-    public boolean deletarPorJogoId(Long jogoId) {
-        Optional<Jogo> jogoOptional = jogoRepository.findById(jogoId);
+    /** Remove os requisitos mínimos de um jogo. */
+    public void deletarPorJogoId(Long jogoId) {
+        Jogo jogo = jogoService.buscarPorId(jogoId);
+        RequisitosMinimos requisitos = buscarPorJogoId(jogoId);
+        jogo.setRequisitosMinimos(null);
+        requisitosRepository.delete(requisitos);
+    }
 
-        if (jogoOptional.isPresent()) {
-            Jogo jogo = jogoOptional.get();
-            if (jogo.getRequisitosMinimos() != null) {
-                jogo.setRequisitosMinimos(null);
-                jogoRepository.save(jogo);
-                requisitosRepository.deleteByJogoId(jogoId);
-                return true;
-            }
-        }
-        return false;
+    private void validarCampos(RequisitosMinimos requisitos) {
+        Validacao.exigirTexto(requisitos.getProcessador(), "processador");
+        Validacao.exigirTexto(requisitos.getMemoria(), "memoria");
+        Validacao.exigirTexto(requisitos.getPlacaDeVideo(), "placaDeVideo");
+        Validacao.exigirTexto(requisitos.getSistemaOperacional(), "sistemaOperacional");
     }
 }

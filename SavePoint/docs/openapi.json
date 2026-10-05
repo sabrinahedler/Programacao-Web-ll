@@ -1,0 +1,2889 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "SavePoint API",
+    "version": "1.0.0",
+    "description": "API REST do SavePoint: catálogo de jogos, comparação de preços entre lojas, histórico de preços, avaliações de usuários e lista de desejos."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Ambiente local"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Jogos",
+      "description": "Cadastro e consulta de jogos"
+    },
+    {
+      "name": "Lojas",
+      "description": "Lojas onde os jogos são vendidos"
+    },
+    {
+      "name": "Ofertas",
+      "description": "Preços dos jogos em cada loja"
+    },
+    {
+      "name": "Histórico de preços",
+      "description": "Evolução do preço de cada oferta"
+    },
+    {
+      "name": "Requisitos mínimos",
+      "description": "Requisitos mínimos de hardware de cada jogo"
+    },
+    {
+      "name": "Avaliações",
+      "description": "Avaliações dos usuários sobre os jogos"
+    },
+    {
+      "name": "Resumo de avaliações",
+      "description": "Resumo consolidado das avaliações de um jogo"
+    },
+    {
+      "name": "Usuários",
+      "description": "Cadastro e gestão de usuários"
+    },
+    {
+      "name": "Lista de desejos",
+      "description": "Lista de desejos do usuário"
+    },
+    {
+      "name": "Itens da lista de desejos",
+      "description": "Jogos da lista de desejos com alerta de preço"
+    }
+  ],
+  "paths": {
+    "/jogos": {
+      "get": {
+        "tags": [
+          "Jogos"
+        ],
+        "summary": "Listar todos os jogos",
+        "operationId": "jogo_listarTodos",
+        "responses": {
+          "200": {
+            "description": "Lista de jogos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Jogo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Jogos"
+        ],
+        "summary": "Cadastrar jogo",
+        "operationId": "jogo_salvar",
+        "description": "Cria um jogo. Requisitos mínimos, ofertas e resumo são cadastrados pelos endpoints próprios.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Jogo"
+              },
+              "example": {
+                "titulo": "The Witcher 3: Wild Hunt",
+                "descricao": "RPG de mundo aberto onde o jogador vive Geralt de Rivia.",
+                "dataLancamento": "2015-05-19",
+                "imagemCapa": "https://exemplo.com/capas/witcher3.jpg",
+                "classificacaoIndicativa": "18",
+                "desenvolvedora": "CD Projekt Red",
+                "genero": "RPG"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Jogo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogos/{id}": {
+      "get": {
+        "tags": [
+          "Jogos"
+        ],
+        "summary": "Buscar jogo por ID",
+        "operationId": "jogo_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Jogo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Jogos"
+        ],
+        "summary": "Atualizar jogo",
+        "operationId": "jogo_atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Jogo"
+              },
+              "example": {
+                "titulo": "The Witcher 3: Wild Hunt",
+                "descricao": "RPG de mundo aberto onde o jogador vive Geralt de Rivia.",
+                "dataLancamento": "2015-05-19",
+                "imagemCapa": "https://exemplo.com/capas/witcher3.jpg",
+                "classificacaoIndicativa": "18",
+                "desenvolvedora": "CD Projekt Red",
+                "genero": "RPG"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Jogo atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Jogo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Jogos"
+        ],
+        "summary": "Excluir jogo",
+        "operationId": "jogo_deletar",
+        "description": "Remove também as ofertas, o histórico, as avaliações e os itens de lista de desejos do jogo.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lojas": {
+      "get": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Listar todas as lojas",
+        "operationId": "loja_listarTodas",
+        "responses": {
+          "200": {
+            "description": "Lista de lojas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Loja"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Cadastrar loja",
+        "operationId": "loja_salvar",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Loja"
+              },
+              "example": {
+                "nome": "Steam",
+                "urlLoja": "https://store.steampowered.com",
+                "urlLogo": "https://exemplo.com/logos/steam.png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loja"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou nome já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lojas/{id}": {
+      "get": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Buscar loja por ID",
+        "operationId": "loja_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loja"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Atualizar loja",
+        "operationId": "loja_atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Loja"
+              },
+              "example": {
+                "nome": "Steam",
+                "urlLoja": "https://store.steampowered.com",
+                "urlLogo": "https://exemplo.com/logos/steam.png"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Loja atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loja"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou nome já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Lojas"
+        ],
+        "summary": "Excluir loja",
+        "operationId": "loja_deletar",
+        "description": "Remove também as ofertas da loja e o histórico delas.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogos/{id}/ofertas": {
+      "post": {
+        "tags": [
+          "Ofertas"
+        ],
+        "summary": "Cadastrar oferta de um jogo em uma loja",
+        "operationId": "ofertaJogo_cadastrarOferta",
+        "description": "O percentual de desconto é calculado a partir dos preços original e atual.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OfertaJogo"
+              },
+              "example": {
+                "precoOriginal": 199.9,
+                "precoAtual": 99.9,
+                "loja": {
+                  "id": 1
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaJogo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo ou loja não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ofertas/{id}/comparacao": {
+      "get": {
+        "tags": [
+          "Ofertas"
+        ],
+        "summary": "Comparar preços do jogo entre lojas",
+        "operationId": "ofertaJogo_compararPrecos",
+        "description": "O parâmetro de caminho é o ID do jogo.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ofertas ordenadas do menor para o maior preço atual",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OfertaJogo"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ofertas/{id}": {
+      "get": {
+        "tags": [
+          "Ofertas"
+        ],
+        "summary": "Buscar oferta por ID",
+        "operationId": "ofertaJogo_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OfertaJogo"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ofertas/{id}/historico": {
+      "get": {
+        "tags": [
+          "Histórico de preços"
+        ],
+        "summary": "Listar histórico de preços da oferta",
+        "operationId": "historico_buscarPorOfertaId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Histórico do mais recente para o mais antigo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Historico"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Oferta não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Histórico de preços"
+        ],
+        "summary": "Registrar alteração de preço da oferta",
+        "operationId": "historico_registrarAlteracaoPreco",
+        "description": "Registra o novo preço no histórico, atualiza o preço atual da oferta e recalcula o desconto.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Historico"
+              },
+              "example": {
+                "preco": 79.9
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Historico"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Oferta não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogos/{id}/requisitos-minimos": {
+      "get": {
+        "tags": [
+          "Requisitos mínimos"
+        ],
+        "summary": "Buscar requisitos mínimos do jogo",
+        "operationId": "requisitosMinimos_buscarPorJogoId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequisitosMinimos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Requisitos mínimos"
+        ],
+        "summary": "Cadastrar requisitos mínimos do jogo",
+        "operationId": "requisitosMinimos_cadastrar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisitosMinimos"
+              },
+              "example": {
+                "processador": "Intel Core i5-2500K 3.3 GHz",
+                "memoria": "8 GB RAM",
+                "placaDeVideo": "NVIDIA GeForce GTX 660",
+                "sistemaOperacional": "Windows 10 64-bit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequisitosMinimos"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou jogo já possui requisitos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Requisitos mínimos"
+        ],
+        "summary": "Atualizar requisitos mínimos do jogo",
+        "operationId": "requisitosMinimos_atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisitosMinimos"
+              },
+              "example": {
+                "processador": "Intel Core i5-2500K 3.3 GHz",
+                "memoria": "8 GB RAM",
+                "placaDeVideo": "NVIDIA GeForce GTX 660",
+                "sistemaOperacional": "Windows 10 64-bit"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Requisitos atualizados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequisitosMinimos"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Requisitos mínimos"
+        ],
+        "summary": "Excluir requisitos mínimos do jogo",
+        "operationId": "requisitosMinimos_deletar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Listar todas as avaliações",
+        "operationId": "avaliacaoUsuario_listarTodas",
+        "responses": {
+          "200": {
+            "description": "Lista de avaliações",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvaliacaoUsuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Cadastrar avaliação",
+        "operationId": "avaliacaoUsuario_criar",
+        "description": "Usuário e jogo são informados apenas pelo id.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvaliacaoUsuario"
+              },
+              "example": {
+                "nota": 5,
+                "textoAvaliacao": "História incrível e mundo muito bem construído.",
+                "horasJogadas": 120,
+                "indiceRecomendacao": true,
+                "usuario": {
+                  "id": 1
+                },
+                "jogo": {
+                  "id": 1
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvaliacaoUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Nota fora do intervalo de 1 a 5, texto vazio ou dados ausentes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário ou jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/{id}": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Buscar avaliação por ID",
+        "operationId": "avaliacaoUsuario_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvaliacaoUsuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Atualizar avaliação",
+        "operationId": "avaliacaoUsuario_atualizar",
+        "description": "Atualiza nota, texto e horas jogadas.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvaliacaoUsuario"
+              },
+              "example": {
+                "nota": 5,
+                "textoAvaliacao": "História incrível e mundo muito bem construído.",
+                "horasJogadas": 120,
+                "indiceRecomendacao": true,
+                "usuario": {
+                  "id": 1
+                },
+                "jogo": {
+                  "id": 1
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Avaliação atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvaliacaoUsuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Excluir avaliação",
+        "operationId": "avaliacaoUsuario_deletar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/jogo/{jogoId}": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Listar avaliações de um jogo",
+        "operationId": "avaliacaoUsuario_buscarPorJogo",
+        "parameters": [
+          {
+            "name": "jogoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de avaliações",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvaliacaoUsuario"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Excluir todas as avaliações de um jogo",
+        "operationId": "avaliacaoUsuario_deletarPorJogo",
+        "parameters": [
+          {
+            "name": "jogoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/usuario/{usuarioId}": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Listar avaliações de um usuário",
+        "operationId": "avaliacaoUsuario_buscarPorUsuario",
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de avaliações",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AvaliacaoUsuario"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Excluir todas as avaliações de um usuário",
+        "operationId": "avaliacaoUsuario_deletarPorUsuario",
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/jogo/{jogoId}/media": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Calcular nota média do jogo",
+        "operationId": "avaliacaoUsuario_calcularMedia",
+        "parameters": [
+          {
+            "name": "jogoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nota média",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/jogo/{jogoId}/indice-recomendacao": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Calcular índice de recomendação do jogo",
+        "operationId": "avaliacaoUsuario_calcularIndiceRecomendacao",
+        "parameters": [
+          {
+            "name": "jogoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Percentual de avaliações com nota 4 ou 5",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/jogo/{jogoId}/count": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Contar avaliações de um jogo",
+        "operationId": "avaliacaoUsuario_contarPorJogo",
+        "parameters": [
+          {
+            "name": "jogoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Total de avaliações",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/{id}/recomendado": {
+      "get": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Verificar se a avaliação recomenda o jogo",
+        "operationId": "avaliacaoUsuario_isRecomendado",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "true se a nota for 4 ou 5",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/avaliacoes/{id}/curtir": {
+      "post": {
+        "tags": [
+          "Avaliações"
+        ],
+        "summary": "Curtir avaliação",
+        "operationId": "avaliacaoUsuario_curtir",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Curtida registrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvaliacaoUsuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogos/{id}/resumo": {
+      "post": {
+        "tags": [
+          "Resumo de avaliações"
+        ],
+        "summary": "Gerar resumo de avaliações do jogo",
+        "operationId": "resumoAvaliacao_gerarResumo",
+        "description": "Calcula nota média, total e percentual de recomendação. Se já existir um resumo, ele é recalculado.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Resumo gerado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumoAvaliacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Resumo de avaliações"
+        ],
+        "summary": "Buscar resumo de avaliações do jogo",
+        "operationId": "resumoAvaliacao_buscarResumo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumoAvaliacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Resumo de avaliações"
+        ],
+        "summary": "Atualizar resumo de avaliações do jogo",
+        "operationId": "resumoAvaliacao_atualizarResumo",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResumoAvaliacao"
+              },
+              "example": {
+                "resumoGeradoIA": "Jogo muito elogiado pela narrativa e pelo mundo aberto.",
+                "principaisElogios": [
+                  "Narrativa envolvente",
+                  "Trilha sonora"
+                ],
+                "principaisCriticas": [
+                  "Bugs no lancamento"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resumo atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResumoAvaliacao"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogos/{jogoId}/resumo/{resumoId}": {
+      "delete": {
+        "tags": [
+          "Resumo de avaliações"
+        ],
+        "summary": "Excluir resumo de avaliações",
+        "operationId": "resumoAvaliacao_deletarResumo",
+        "parameters": [
+          {
+            "name": "jogoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "resumoId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar todos os usuários",
+        "operationId": "usuario_listarTodos",
+        "responses": {
+          "200": {
+            "description": "Lista de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Cadastrar usuário",
+        "operationId": "usuario_criar",
+        "description": "A senha deve ter no mínimo 6 caracteres e nunca é devolvida nas respostas.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Usuario"
+              },
+              "example": {
+                "nome": "Jean Silva",
+                "email": "jean@exemplo.com",
+                "senha": "senha123",
+                "telefone": "47999990000"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou e-mail já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/ativos": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar usuários ativos",
+        "operationId": "usuario_listarAtivos",
+        "responses": {
+          "200": {
+            "description": "Lista de usuários ativos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/inativos": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Listar usuários inativos",
+        "operationId": "usuario_listarInativos",
+        "responses": {
+          "200": {
+            "description": "Lista de usuários inativos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/count": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Contar usuários",
+        "operationId": "usuario_contarTotal",
+        "responses": {
+          "200": {
+            "description": "Total de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/ativos/count": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Contar usuários ativos",
+        "operationId": "usuario_contarAtivos",
+        "responses": {
+          "200": {
+            "description": "Total de usuários ativos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Buscar usuário por ID",
+        "operationId": "usuario_buscarPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar usuário",
+        "operationId": "usuario_atualizar",
+        "description": "Atualiza nome, e-mail e telefone. Campos não informados são mantidos.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Usuario"
+              },
+              "example": {
+                "nome": "Jean Silva",
+                "email": "jean@exemplo.com",
+                "senha": "senha123",
+                "telefone": "47999990000"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Usuário atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "E-mail inválido ou já cadastrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Excluir usuário",
+        "operationId": "usuario_deletar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/email/{email}": {
+      "get": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Buscar usuário por e-mail",
+        "operationId": "usuario_buscarPorEmail",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}/senha": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Atualizar senha do usuário",
+        "operationId": "usuario_atualizarSenha",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AtualizarSenhaRequest"
+              },
+              "example": {
+                "novaSenha": "novaSenha456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Senha atualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Senha inválida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}/ativar": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Ativar usuário",
+        "operationId": "usuario_ativar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário ativado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/usuarios/{id}/desativar": {
+      "patch": {
+        "tags": [
+          "Usuários"
+        ],
+        "summary": "Desativar usuário",
+        "operationId": "usuario_desativar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Usuário desativado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Usuario"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jogos/{idJogo}/usuarios-interessados": {
+      "get": {
+        "tags": [
+          "Lista de desejos"
+        ],
+        "summary": "Listar usuários que desejam um jogo",
+        "operationId": "listaDesejos_buscarUsuariosInteressados",
+        "parameters": [
+          {
+            "name": "idJogo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de usuários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Usuario"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/lista-desejos": {
+      "post": {
+        "tags": [
+          "Lista de desejos"
+        ],
+        "summary": "Criar lista de desejos do usuário",
+        "operationId": "listaDesejos_criarLista",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista criada, ou a existente se o usuário já tiver uma",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListaDesejos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Usuário não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/{usuarioId}/lista-desejos/{listaId}": {
+      "delete": {
+        "tags": [
+          "Lista de desejos"
+        ],
+        "summary": "Excluir lista de desejos",
+        "operationId": "listaDesejos_deletarLista",
+        "parameters": [
+          {
+            "name": "usuarioId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "listaId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Removido com sucesso (sem conteúdo)"
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/lista-desejos/itens": {
+      "post": {
+        "tags": [
+          "Itens da lista de desejos"
+        ],
+        "summary": "Adicionar jogo à lista de desejos",
+        "operationId": "itemListaDesejos_adicionarItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemListaDesejos"
+              },
+              "example": {
+                "precoAlerta": 79.9,
+                "notificarOferta": true,
+                "jogo": {
+                  "id": 1
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Criado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemListaDesejos"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos ou jogo já está na lista",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Lista ou jogo não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/usuarios/{id}/lista-desejos/itens/{itemId}": {
+      "get": {
+        "tags": [
+          "Itens da lista de desejos"
+        ],
+        "summary": "Buscar item da lista de desejos",
+        "operationId": "itemListaDesejos_buscarItem",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemListaDesejos"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Itens da lista de desejos"
+        ],
+        "summary": "Atualizar item da lista de desejos",
+        "operationId": "itemListaDesejos_atualizarItem",
+        "description": "Atualiza o preço de alerta e a notificação de oferta.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ItemListaDesejos"
+              },
+              "example": {
+                "precoAlerta": 79.9,
+                "notificarOferta": true,
+                "jogo": {
+                  "id": 1
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Item atualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemListaDesejos"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Dados inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Recurso não encontrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErroResposta"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Jogo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "descricao": {
+            "type": "string"
+          },
+          "dataLancamento": {
+            "type": "string",
+            "format": "date"
+          },
+          "imagemCapa": {
+            "type": "string"
+          },
+          "classificacaoIndicativa": {
+            "type": "string"
+          },
+          "desenvolvedora": {
+            "type": "string"
+          },
+          "genero": {
+            "type": "string"
+          },
+          "requisitosMinimos": {
+            "$ref": "#/components/schemas/RequisitosMinimos"
+          },
+          "resumoAvaliacao": {
+            "$ref": "#/components/schemas/ResumoAvaliacao"
+          },
+          "ofertas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OfertaJogo"
+            }
+          }
+        }
+      },
+      "RequisitosMinimos": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "processador": {
+            "type": "string"
+          },
+          "memoria": {
+            "type": "string"
+          },
+          "placaDeVideo": {
+            "type": "string"
+          },
+          "sistemaOperacional": {
+            "type": "string"
+          }
+        }
+      },
+      "ResumoAvaliacao": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "notaMedia": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalAvaliacoes": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "percentualRecomendacao": {
+            "type": "number",
+            "format": "double"
+          },
+          "principaisElogios": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "principaisCriticas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "resumoGeradoIA": {
+            "type": "string"
+          },
+          "dataGeracao": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "Loja": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "urlLoja": {
+            "type": "string"
+          },
+          "urlLogo": {
+            "type": "string"
+          }
+        }
+      },
+      "OfertaJogo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precoOriginal": {
+            "type": "number",
+            "format": "double"
+          },
+          "precoAtual": {
+            "type": "number",
+            "format": "double"
+          },
+          "percentualDesconto": {
+            "type": "number",
+            "format": "float"
+          },
+          "loja": {
+            "$ref": "#/components/schemas/Loja"
+          },
+          "historico": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Historico"
+            }
+          }
+        }
+      },
+      "Historico": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "data": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "preco": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nome": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "senha": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "dataCadastro": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ultimoAcesso": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "ativo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ListaDesejos": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "jogos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemListaDesejos"
+            }
+          }
+        }
+      },
+      "ItemListaDesejos": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "precoAlerta": {
+            "type": "number",
+            "format": "double"
+          },
+          "notificarOferta": {
+            "type": "boolean"
+          },
+          "jogo": {
+            "$ref": "#/components/schemas/Jogo"
+          }
+        }
+      },
+      "AvaliacaoUsuario": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "nota": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "textoAvaliacao": {
+            "type": "string"
+          },
+          "dataPublicacao": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "curtidas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "horasJogadas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "indiceRecomendacao": {
+            "type": "boolean"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "jogo": {
+            "$ref": "#/components/schemas/Jogo"
+          }
+        }
+      },
+      "AtualizarSenhaRequest": {
+        "type": "object",
+        "properties": {
+          "novaSenha": {
+            "type": "string"
+          }
+        }
+      },
+      "ErroResposta": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "erro": {
+            "type": "string"
+          },
+          "mensagem": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    }
+  },
+  "security": [
+    {
+      "basicAuth": []
+    }
+  ]
+}

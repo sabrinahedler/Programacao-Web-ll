@@ -1,10 +1,24 @@
 package br_com_savepoint.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
+/** Loja onde os jogos são vendidos. */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_loja")
 public class Loja {
@@ -17,16 +31,7 @@ public class Loja {
     private String urlLoja;
     private String urlLogo;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL)
-    private List<OfertaJogo> ofertas;
-
-    public Loja () {
-    }
-
-    public Loja (Long id, String nome, String urlLoja, String urlLogo) {
-        this.id = id;
-        this.nome = nome;
-        this.urlLoja = urlLoja;
-        this.urlLogo = urlLogo;
-    }
+    private List<OfertaJogo> ofertas = new ArrayList<>();
 }

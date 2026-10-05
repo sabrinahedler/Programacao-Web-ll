@@ -1,9 +1,21 @@
 package br_com_savepoint.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+/** Jogo adicionado à lista de desejos, com preço de alerta. */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_item_lista_desejos")
 public class ItemListaDesejos {
@@ -15,6 +27,7 @@ public class ItemListaDesejos {
     private double precoAlerta;
     private boolean notificarOferta;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "lista_desejos_id", nullable = false)
     private ListaDesejos listaDesejos;
@@ -22,15 +35,4 @@ public class ItemListaDesejos {
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
-
-    public ItemListaDesejos() {
-    }
-
-    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta, ListaDesejos listaDesejos, Jogo jogo) {
-        this.id = id;
-        this.precoAlerta = precoAlerta;
-        this.notificarOferta = notificarOferta;
-        this.listaDesejos = listaDesejos;
-        this.jogo = jogo;
-    }
 }

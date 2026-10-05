@@ -9,7 +9,5 @@ import java.util.List;
 @Repository
 public interface OfertaJogoRepository extends JpaRepository<OfertaJogo, Long> {
 
-    List<OfertaJogo> findByLojaId(Long lojaId);
-
     List<OfertaJogo> findByJogoIdOrderByPrecoAtualAsc(Long jogoId);
 }

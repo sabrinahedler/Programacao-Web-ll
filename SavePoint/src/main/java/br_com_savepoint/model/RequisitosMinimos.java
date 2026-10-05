@@ -1,9 +1,20 @@
 package br_com_savepoint.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+/** Requisitos mínimos de hardware e sistema para executar um jogo. */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_requisitos_minimos")
 public class RequisitosMinimos {
@@ -17,19 +28,7 @@ public class RequisitosMinimos {
     private String placaDeVideo;
     private String sistemaOperacional;
 
-    // Opcional: cria a ligação de volta para a classe Jogo
+    @JsonIgnore
     @OneToOne(mappedBy = "requisitosMinimos")
     private Jogo jogo;
-
-    public RequisitosMinimos() {
-    }
-
-    public RequisitosMinimos(Long id, String processador, String memoria,  String placaDeVideo, String sistemaOperacional, Jogo jogo) {
-        this.id = id;
-        this.processador = processador;
-        this.memoria = memoria;
-        this.placaDeVideo = placaDeVideo;
-        this.sistemaOperacional = sistemaOperacional;
-        this.jogo = jogo;
-    }
 }

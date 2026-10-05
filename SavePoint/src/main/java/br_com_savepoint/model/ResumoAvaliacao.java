@@ -1,11 +1,28 @@
 package br_com_savepoint.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
+/** Resumo consolidado das avaliações de um jogo. */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_resumo_avaliacao")
 public class ResumoAvaliacao {
@@ -21,34 +38,19 @@ public class ResumoAvaliacao {
     @ElementCollection
     @CollectionTable(name = "tb_resumo_elogios", joinColumns = @JoinColumn(name = "resumo_id"))
     @Column(name = "elogio")
-    private String[] principaisElogios;
+    private List<String> principaisElogios = new ArrayList<>();
 
     @ElementCollection
     @CollectionTable(name = "tb_resumo_criticas", joinColumns = @JoinColumn(name = "resumo_id"))
     @Column(name = "critica")
-    private String[] principaisCriticas;
+    private List<String> principaisCriticas = new ArrayList<>();
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "resumo_gerado_ia", columnDefinition = "TEXT")
     private String resumoGeradoIA;
 
     private LocalDate dataGeracao;
 
-    @OneToOne
-    @JoinColumn(name = "jogo_id", nullable = false)
+    @JsonIgnore
+    @OneToOne(mappedBy = "resumoAvaliacao")
     private Jogo jogo;
-
-    public ResumoAvaliacao() {
-    }
-
-    public ResumoAvaliacao(Long id, double notaMedia, int totalAvaliacoes, double percentualRecomendacao, String[] principaisElogios, String[] principaisCriticas, String resumoGeradoIA, LocalDate dataGeracao, Jogo jogo) {
-        this.id = id;
-        this.notaMedia = notaMedia;
-        this.totalAvaliacoes = totalAvaliacoes;
-        this.percentualRecomendacao = percentualRecomendacao;
-        this.principaisElogios = principaisElogios;
-        this.principaisCriticas = principaisCriticas;
-        this.resumoGeradoIA = resumoGeradoIA;
-        this.dataGeracao = dataGeracao;
-        this.jogo = jogo;
-    }
 }

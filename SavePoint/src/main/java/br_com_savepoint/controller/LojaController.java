@@ -1,17 +1,29 @@
 package br_com_savepoint.controller;
 
+import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import br_com_savepoint.model.Loja;
 import br_com_savepoint.service.LojaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Optional;
 
+@Tag(name = "Lojas", description = "Lojas onde os jogos são vendidos")
 @RestController
 @RequestMapping("/lojas")
-@CrossOrigin(origins = "*")
 public class LojaController {
 
     private final LojaService lojaService;
@@ -20,50 +32,78 @@ public class LojaController {
         this.lojaService = lojaService;
     }
 
-    @PostMapping
-    public ResponseEntity<Loja> salvar(@RequestBody Loja loja) {
-        Loja novaLoja = lojaService.salvar(loja);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaLoja);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        boolean deletado = lojaService.deletar(id);
-
-        if (deletado) {
-            return ResponseEntity.noContent().build();
-        }
-
-        return ResponseEntity.notFound().build();
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Loja> atualizar(@PathVariable Long id, @RequestBody Loja lojaAtualizada) {
-        Optional<Loja> lojaOptional = lojaService.atualizar(id, lojaAtualizada);
-
-        if (lojaOptional.isPresent()) {
-            Loja lojaModificada = lojaOptional.get();
-            return ResponseEntity.status(HttpStatus.CREATED).body(lojaModificada);
-        }
-
-        return ResponseEntity.notFound().build();
-    }
-
+    @Operation(
+            summary = "Listar todas as lojas",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Lista de lojas")
+            })
     @GetMapping
     public ResponseEntity<List<Loja>> listarTodas() {
-        List<Loja> lojas = lojaService.listarTodas();
-        return ResponseEntity.ok(lojas);
+        return ResponseEntity.ok(lojaService.listarTodas());
     }
 
+    @Operation(
+            summary = "Buscar loja por ID",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Sucesso"),
+                    @ApiResponse(responseCode = "404", description = "Recurso não encontrado")
+            })
     @GetMapping("/{id}")
     public ResponseEntity<Loja> buscarPorId(@PathVariable Long id) {
-        Optional<Loja> lojaOptional = lojaService.buscarPorId(id);
+        return ResponseEntity.ok(lojaService.buscarPorId(id));
+    }
 
-        if (lojaOptional.isPresent()) {
-            Loja lojaEncontrada = lojaOptional.get();
-            return ResponseEntity.ok(lojaEncontrada);
-        }
+    @Operation(
+            summary = "Cadastrar loja",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(value = """
+                            {
+                              "nome": "Steam",
+                              "urlLoja": "https://store.steampowered.com",
+                              "urlLogo": "https://exemplo.com/logos/steam.png"
+                            }
+                            """))),
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Criado com sucesso"),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos ou nome já cadastrado")
+            })
+    @PostMapping
+    public ResponseEntity<Loja> salvar(@Valid @RequestBody Loja loja) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(lojaService.salvar(loja));
+    }
 
-        return ResponseEntity.notFound().build();
+    @Operation(
+            summary = "Atualizar loja",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(
+                    mediaType = "application/json",
+                    examples = @ExampleObject(value = """
+                            {
+                              "nome": "Steam",
+                              "urlLoja": "https://store.steampowered.com",
+                              "urlLogo": "https://exemplo.com/logos/steam.png"
+                            }
+                            """))),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Loja atualizada"),
+                    @ApiResponse(responseCode = "400", description = "Dados inválidos ou nome já cadastrado"),
+                    @ApiResponse(responseCode = "404", description = "Recurso não encontrado")
+            })
+    @PutMapping("/{id}")
+    public ResponseEntity<Loja> atualizar(@PathVariable Long id, @Valid @RequestBody Loja loja) {
+        return ResponseEntity.ok(lojaService.atualizar(id, loja));
+    }
+
+    @Operation(
+            summary = "Excluir loja",
+            description = "Remove também as ofertas da loja e o histórico delas.",
+            responses = {
+                    @ApiResponse(responseCode = "204", description = "Removido com sucesso (sem conteúdo)"),
+                    @ApiResponse(responseCode = "404", description = "Recurso não encontrado")
+            })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        lojaService.deletar(id);
+        return ResponseEntity.noContent().build();
     }
 }

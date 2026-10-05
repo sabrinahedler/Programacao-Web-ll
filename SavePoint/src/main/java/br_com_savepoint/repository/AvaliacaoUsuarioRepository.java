@@ -19,6 +19,10 @@ public interface AvaliacaoUsuarioRepository extends JpaRepository<AvaliacaoUsuar
 
     void deleteByUsuarioId(Long usuarioId);
 
+    long countByJogoId(Long jogoId);
+
+    long countByJogoIdAndNotaGreaterThanEqual(Long jogoId, int nota);
+
     @Query("SELECT AVG(a.nota) FROM AvaliacaoUsuario a WHERE a.jogo.id = :jogoId")
-    Double calcularMediaJogo(@Param("jogoId") Long jogoId);
+    Double calcularMediaPorJogo(@Param("jogoId") Long jogoId);
 }

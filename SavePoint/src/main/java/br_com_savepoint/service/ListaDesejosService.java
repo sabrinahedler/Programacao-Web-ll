@@ -1,104 +1,67 @@
 package br_com_savepoint.service;
 
-import br_com_savepoint.model.ItemListaDesejos;
-import br_com_savepoint.model.Jogo;
+import br_com_savepoint.exception.RecursoNaoEncontradoException;
 import br_com_savepoint.model.ListaDesejos;
 import br_com_savepoint.model.Usuario;
 import br_com_savepoint.repository.ItemListaDesejosRepository;
-import br_com_savepoint.repository.JogoRepository;
 import br_com_savepoint.repository.ListaDesejosRepository;
-import br_com_savepoint.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+/** Regras de negócio da lista de desejos dos usuários. */
 @Service
+@Transactional
 public class ListaDesejosService {
 
     private final ListaDesejosRepository listaDesejosRepository;
-    private final ItemListaDesejosRepository itemListaDesejosRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final JogoRepository jogoRepository;
+    private final ItemListaDesejosRepository itemRepository;
+    private final UsuarioService usuarioService;
+    private final JogoService jogoService;
 
-    public ListaDesejosService(
-            ListaDesejosRepository listaDesejosRepository,
-            ItemListaDesejosRepository itemListaDesejosRepository,
-            UsuarioRepository usuarioRepository,
-            JogoRepository jogoRepository) {
+    public ListaDesejosService(ListaDesejosRepository listaDesejosRepository,
+                               ItemListaDesejosRepository itemRepository,
+                               UsuarioService usuarioService,
+                               JogoService jogoService) {
         this.listaDesejosRepository = listaDesejosRepository;
-        this.itemListaDesejosRepository = itemListaDesejosRepository;
-        this.usuarioRepository = usuarioRepository;
-        this.jogoRepository = jogoRepository;
+        this.itemRepository = itemRepository;
+        this.usuarioService = usuarioService;
+        this.jogoService = jogoService;
     }
 
-    // POST /usuarios/{id}/lista-desejos/
+    /** Cria a lista de desejos do usuário ou devolve a já existente. */
     public ListaDesejos criarLista(Long usuarioId) {
-        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
-
-        if (usuarioOptional.isEmpty()) {
-            throw new IllegalArgumentException("Usuário não encontrado com o ID: " + usuarioId);
-        }
-
-        Optional<ListaDesejos> listaExistente =
-                listaDesejosRepository.findByUsuarioId(usuarioId);
-
-        if (listaExistente.isPresent()) {
-            return listaExistente.get();
-        }
-
-        ListaDesejos novaLista = new ListaDesejos();
-        novaLista.setUsuario(usuarioOptional.get());
-
-        return listaDesejosRepository.save(novaLista);
+        Usuario usuario = usuarioService.buscarPorId(usuarioId);
+        return listaDesejosRepository.findByUsuarioId(usuarioId).orElseGet(() -> {
+            ListaDesejos lista = new ListaDesejos();
+            lista.setUsuario(usuario);
+            usuario.setListaDesejos(lista);
+            return listaDesejosRepository.save(lista);
+        });
     }
 
-    // GET /jogos/{idJogo}/usuarios-interessados
+    /** Busca a lista de desejos do usuário ou falha se ele ainda não tiver uma. */
+    public ListaDesejos buscarPorUsuario(Long usuarioId) {
+        return listaDesejosRepository.findByUsuarioId(usuarioId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Lista de desejos não encontrada para o usuário: " + usuarioId));
+    }
+
+    /** Lista os usuários que têm o jogo em sua lista de desejos. */
     public List<Usuario> buscarUsuariosInteressados(Long jogoId) {
-        Optional<Jogo> jogoOptional = jogoRepository.findById(jogoId);
-
-        if (jogoOptional.isEmpty()) {
-            throw new IllegalArgumentException("Jogo não encontrado com o ID: " + jogoId);
-        }
-
-        List<Usuario> usuariosInteressados = new ArrayList<>();
-        List<ItemListaDesejos> itens = itemListaDesejosRepository.findAll();
-
-        for (ItemListaDesejos item : itens) {
-            if (item.getJogo() != null
-                    && item.getJogo().getId() != null
-                    && item.getJogo().getId().equals(jogoId)
-                    && item.getListaDesejos() != null
-                    && item.getListaDesejos().getUsuario() != null) {
-
-                Usuario usuario = item.getListaDesejos().getUsuario();
-
-                if (!usuariosInteressados.contains(usuario)) {
-                    usuariosInteressados.add(usuario);
-                }
-            }
-        }
-
-        return usuariosInteressados;
+        jogoService.buscarPorId(jogoId);
+        return itemRepository.buscarUsuariosPorJogo(jogoId);
     }
 
-    // DELETE /usuarios/{usuarioId}/lista-desejos/{listaId}
-    public boolean deletarLista(Long usuarioId, Long listaId) {
-        Optional<ListaDesejos> listaOptional = listaDesejosRepository.findById(listaId);
-
-        if (listaOptional.isEmpty()) {
-            return false;
+    /** Remove a lista de desejos de um usuário. */
+    public void deletarLista(Long usuarioId, Long listaId) {
+        ListaDesejos lista = buscarPorUsuario(usuarioId);
+        if (!lista.getId().equals(listaId)) {
+            throw new RecursoNaoEncontradoException(
+                    "A lista " + listaId + " não pertence ao usuário " + usuarioId + ".");
         }
-
-        ListaDesejos lista = listaOptional.get();
-
-        if (lista.getUsuario() == null
-                || !lista.getUsuario().getId().equals(usuarioId)) {
-            return false;
-        }
-
-        listaDesejosRepository.deleteById(listaId);
-        return true;
+        lista.getUsuario().setListaDesejos(null);
+        listaDesejosRepository.delete(lista);
     }
 }

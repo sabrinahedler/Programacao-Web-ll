@@ -1,19 +1,37 @@
-version: '3.8'
-
 services:
   mysql-db:
     image: mysql:8.0
     container_name: savepoint-mysql
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
     environment:
-      MYSQL_DATABASE: savepointdb
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-savepointdb}
+      MYSQL_USER: ${MYSQL_USER:-savepoint}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-savepoint}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
     ports:
-      - "3306:3306"
+      - "${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_savepoint_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    container_name: savepoint-api
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://mysql-db:3306/${MYSQL_DATABASE:-savepointdb}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+      DB_USERNAME: ${MYSQL_USER:-savepoint}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-savepoint}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
 
 volumes:
   mysql_savepoint_data:

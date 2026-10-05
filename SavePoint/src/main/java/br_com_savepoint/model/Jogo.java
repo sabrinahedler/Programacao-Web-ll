@@ -1,12 +1,28 @@
 package br_com_savepoint.model;
 
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.*;
-
-@Data
+/** Jogo do catálogo, com requisitos mínimos, ofertas e resumo de avaliações. */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_jogo")
 public class Jogo {
@@ -15,9 +31,11 @@ public class Jogo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
     private String titulo;
+
+    @Column(columnDefinition = "TEXT")
     private String descricao;
+
     private LocalDate dataLancamento;
     private String imagemCapa;
     private String classificacaoIndicativa;
@@ -28,31 +46,14 @@ public class Jogo {
     @JoinColumn(name = "requisitos_minimos_id")
     private RequisitosMinimos requisitosMinimos;
 
-    @OneToMany(mappedBy = "jogo", cascade = CascadeType.ALL)
-    private List<OfertaJogo> ofertas;
-
-    @OneToMany(mappedBy = "jogo")
-    private List<AvaliacaoUsuario> avaliacoes;
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "resumo_avaliacao_id")
     private ResumoAvaliacao resumoAvaliacao;
 
-    public Jogo() {
-    }
+    @OneToMany(mappedBy = "jogo", cascade = CascadeType.ALL)
+    private List<OfertaJogo> ofertas = new ArrayList<>();
 
-    public Jogo(Long id, String titulo, String descricao, LocalDate dataLancamento, String imagemCapa, String classificacaoIndicativa, String desenvolvedora, String genero, RequisitosMinimos requisitosMinimos, List<OfertaJogo> ofertas, List<AvaliacaoUsuario> avaliacoes, ResumoAvaliacao resumoAvaliacao) {
-        this.id = id;
-        this.titulo = titulo;
-        this.descricao = descricao;
-        this.dataLancamento = dataLancamento;
-        this.imagemCapa = imagemCapa;
-        this.classificacaoIndicativa = classificacaoIndicativa;
-        this.desenvolvedora = desenvolvedora;
-        this.genero = genero;
-        this.requisitosMinimos = requisitosMinimos;
-        this.ofertas = ofertas;
-        this.avaliacoes = avaliacoes;
-        this.resumoAvaliacao = resumoAvaliacao;
-    }
+    @JsonIgnore
+    @OneToMany(mappedBy = "jogo")
+    private List<AvaliacaoUsuario> avaliacoes = new ArrayList<>();
 }

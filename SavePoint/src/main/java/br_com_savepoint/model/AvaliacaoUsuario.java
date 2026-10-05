@@ -1,13 +1,30 @@
 package br_com_savepoint.model;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+import java.time.LocalDateTime;
+
+/** Avaliação de um usuário sobre um jogo. */
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_avaliacao_usuario")
 public class AvaliacaoUsuario {
+
+    private static final int NOTA_MINIMA_RECOMENDACAO = 4;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +36,11 @@ public class AvaliacaoUsuario {
     private String textoAvaliacao;
 
     private LocalDateTime dataPublicacao = LocalDateTime.now();
-    private int curtidas = 0;
-    private int horasJogadas = 0;
-    private int utilVoto = 0;
+    private int curtidas;
+    private int horasJogadas;
+    private boolean indiceRecomendacao;
 
+    @JsonIgnoreProperties({"email", "telefone", "dataCadastro", "ultimoAcesso", "ativo"})
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
@@ -30,50 +48,15 @@ public class AvaliacaoUsuario {
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
-    
-    public AvaliacaoUsuario() {
-        this.dataPublicacao = LocalDateTime.now();
-        this.curtidas = 0;
-        this.utilVoto = 0;
-        this.horasJogadas = 0;
-    }
 
-    public AvaliacaoUsuario(Long id, int nota, String textoAvaliacao, LocalDateTime dataPublicacao, int curtidas, int horasJogadas, int utilVoto, Usuario usuario, Jogo jogo) {
-        this.id = id;
-        this.nota = nota;
-        this.textoAvaliacao = textoAvaliacao;
-        this.dataPublicacao = dataPublicacao;
-        this.curtidas = curtidas;
-        this.horasJogadas = horasJogadas;
-        this.utilVoto = utilVoto;
-        this.usuario = usuario;
-        this.jogo = jogo;
-    }
-
+    /** Incrementa o número de curtidas da avaliação. */
     public void curtir() {
         this.curtidas++;
     }
 
-    public void marcarComoUtil() {
-        this.utilVoto++;
-    }
-
+    /** Indica se a nota da avaliação recomenda o jogo. */
+    @JsonIgnore
     public boolean isRecomendado() {
-        return this.nota >= 4;
-    }
-
-    @Override
-    public String toString() {
-        return "AvaliacaoUsuario{" +
-                "id=" + id +
-                ", nota=" + nota +
-                ", textoAvaliacao='" + textoAvaliacao + '\'' +
-                ", dataPublicacao=" + dataPublicacao +
-                ", curtidas=" + curtidas +
-                ", horasJogadas=" + horasJogadas +
-                ", utilVoto=" + utilVoto +
-                ", usuario=" + (usuario != null ? usuario.getId() : null) +
-                ", jogo=" + (jogo != null ? jogo.getId() : null) +
-                '}';
+        return nota >= NOTA_MINIMA_RECOMENDACAO;
     }
 }
