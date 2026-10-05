@@ -1,5 +1,6 @@
 package br_com_savepoint.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import java.time.LocalDate;
 import java.util.List;
@@ -26,14 +27,16 @@ public class Jogo {
     private String desenvolvedora;
     private String genero;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "requisitos_minimos_id")
     private RequisitosMinimos requisitosMinimos;
 
     @OneToMany(mappedBy = "jogo", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<OfertaJogo> ofertas;
 
     @OneToMany(mappedBy = "jogo")
+    @JsonIgnore
     private List<AvaliacaoUsuario> avaliacoes;
 
     @OneToOne(cascade = CascadeType.ALL)

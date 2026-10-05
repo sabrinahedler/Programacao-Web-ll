@@ -30,7 +30,7 @@ public class AvaliacaoUsuario {
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
     private Jogo jogo;
-    
+
     public AvaliacaoUsuario() {
         this.dataPublicacao = LocalDateTime.now();
         this.curtidas = 0;

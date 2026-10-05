@@ -2,6 +2,7 @@ package br_com_savepoint.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class OfertaJogo {
     private Loja loja;
 
     @OneToMany(mappedBy = "oferta", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Historico> historico;
 
     public OfertaJogo () {

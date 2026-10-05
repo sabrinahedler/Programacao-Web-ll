@@ -22,14 +22,16 @@ public class HistoricoController {
     @GetMapping("/{id}/historico")
     public ResponseEntity<List<Historico>> buscarPorOfertaId(@PathVariable("id") Long ofertaId) {
         List<Historico> historico = historicoService.buscarPorOfertaId(ofertaId);
-
         return ResponseEntity.ok(historico);
     }
 
     @PostMapping("/{id}/historico")
-    public ResponseEntity<Historico> registrarAlteracaoPreco(@PathVariable("id") Long ofertaId, @RequestBody Historico historicoDados) {
-
-        Historico novoRegistro = historicoService.registrarAlteracaoPreco(ofertaId, historicoDados.getPreco());
-        return ResponseEntity.status(HttpStatus.CREATED).body(novoRegistro);
+    public ResponseEntity<?> registrarAlteracaoPreco(@PathVariable("id") Long ofertaId, @RequestBody Historico historicoDados) {
+        try {
+            Historico novoRegistro = historicoService.registrarAlteracaoPreco(ofertaId, historicoDados.getPreco());
+            return ResponseEntity.status(HttpStatus.CREATED).body(novoRegistro);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

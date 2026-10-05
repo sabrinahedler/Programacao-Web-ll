@@ -3,6 +3,7 @@ package br_com_savepoint.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -18,6 +19,7 @@ public class Loja {
     private String urlLogo;
 
     @OneToMany(mappedBy = "loja", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<OfertaJogo> ofertas;
 
     public Loja() {

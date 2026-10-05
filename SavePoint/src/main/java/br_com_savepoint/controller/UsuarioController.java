@@ -2,7 +2,6 @@ package br_com_savepoint.controller;
 
 import br_com_savepoint.model.Usuario;
 import br_com_savepoint.service.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,37 +9,33 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("/usuarios")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
-@Autowired
-private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
-    //LISTAR TODOS
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Usuario>> listarTodos() {
         List<Usuario> usuarios = usuarioService.listarTodos();
-    return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);
-    }
-
-    // LISTAR ATIVOS 
-
-    @GetMapping("/ativos")
-    public ResponseEntity<List<Usuario>> listarAtivos() {
-  List<Usuario> usuarios = usuarioService.listarAtivos();
         return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);
     }
 
-    // LISTAR INATIVOS 
+    @GetMapping("/ativos")
+    public ResponseEntity<List<Usuario>> listarAtivos() {
+        List<Usuario> usuarios = usuarioService.listarAtivos();
+        return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);
+    }
 
     @GetMapping("/inativos")
     public ResponseEntity<List<Usuario>> listarInativos() {
         List<Usuario> usuarios = usuarioService.listarInativos();
         return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);
     }
-
-    //  BUSCAR POR ID 
 
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id) {
@@ -51,8 +46,6 @@ private UsuarioService usuarioService;
         return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
     }
 
-// BUSCAR POR EMAIL
-
     @GetMapping("/email/{email}")
     public ResponseEntity<Usuario> buscarPorEmail(@PathVariable String email) {
         Usuario usuario = usuarioService.buscarPorEmail(email);
@@ -62,7 +55,15 @@ private UsuarioService usuarioService;
         return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
     }
 
-    //CRIAR 
+    @PostMapping("/login")
+    public ResponseEntity<Usuario> login(@RequestBody Usuario credenciais) {
+        try {
+            Usuario usuarioLogado = usuarioService.login(credenciais.getEmail(), credenciais.getSenha());
+            return ResponseEntity.ok(usuarioLogado);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+    }
 
     @PostMapping
     public ResponseEntity<?> criar(@RequestBody Usuario usuario) {
@@ -74,8 +75,6 @@ private UsuarioService usuarioService;
         }
     }
 
-    // ATUALIZAR
-
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         try {
@@ -85,8 +84,6 @@ private UsuarioService usuarioService;
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
-    //ATUALIZAR SENHA
 
     @PatchMapping("/{id}/senha")
     public ResponseEntity<?> atualizarSenha(@PathVariable Long id, @RequestBody String novaSenha) {
@@ -98,8 +95,6 @@ private UsuarioService usuarioService;
         }
     }
 
-    //  ATIVAR
-
     @PatchMapping("/{id}/ativar")
     public ResponseEntity<?> ativar(@PathVariable Long id) {
         try {
@@ -109,8 +104,6 @@ private UsuarioService usuarioService;
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
-
-    //  DESATIVAR
 
     @PatchMapping("/{id}/desativar")
     public ResponseEntity<?> desativar(@PathVariable Long id) {
@@ -122,8 +115,6 @@ private UsuarioService usuarioService;
         }
     }
 
-    // DELETAR
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         try {
@@ -133,8 +124,6 @@ private UsuarioService usuarioService;
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
     }
-
-    // CONTAGENS 
 
     @GetMapping("/count")
     public ResponseEntity<Long> contarTotal() {

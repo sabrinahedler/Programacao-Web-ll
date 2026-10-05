@@ -50,4 +50,13 @@ public class OfertaJogoController {
 
         return ResponseEntity.notFound().build();
     }
+
+    @DeleteMapping("/ofertas/{id}")
+    public ResponseEntity<Void> deletarOferta(@PathVariable("id") Long ofertaId) {
+        boolean deletado = ofertaJogoService.deletar(ofertaId);
+        if (deletado) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

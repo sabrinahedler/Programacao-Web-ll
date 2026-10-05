@@ -6,7 +6,6 @@ import br_com_savepoint.model.Usuario;
 import br_com_savepoint.repository.AvaliacaoUsuarioRepository;
 import br_com_savepoint.repository.JogoRepository;
 import br_com_savepoint.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,167 +13,96 @@ import java.util.List;
 @Service
 public class AvaliacaoUsuarioService {
 
-    @Autowired
-    private AvaliacaoUsuarioRepository avaliacaoRepositorio;
+    private final AvaliacaoUsuarioRepository avaliacaoRepositorio;
+    private final UsuarioRepository usuarioRepositorio;
+    private final JogoRepository jogoRepositorio;
 
-    @Autowired
-    private UsuarioRepository usuarioRepositorio;
-
-    @Autowired
-    private JogoRepository jogoRepositorio;
-
-    // LISTAGENS
-
-    public List<AvaliacaoUsuario> listarTodas() {
-        return avaliacaoRepositorio.findAll();
+    public AvaliacaoUsuarioService(AvaliacaoUsuarioRepository avaliacaoRepositorio, UsuarioRepository usuarioRepositorio, JogoRepository jogoRepositorio) {
+        this.avaliacaoRepositorio = avaliacaoRepositorio;
+        this.usuarioRepositorio = usuarioRepositorio;
+        this.jogoRepositorio = jogoRepositorio;
     }
 
-    // BUSCAS 
-
-    public AvaliacaoUsuario buscarPorId(Long id) {
-        return avaliacaoRepositorio.findById(id).orElse(null);
-    }
-
-    public List<AvaliacaoUsuario> buscarPorJogo(Long jogoId) throws Exception {
-        Jogo jogo = jogoRepositorio.findById(jogoId).orElse(null);
-        if (jogo == null) {
-            throw new Exception("Jogo não encontrado com ID: " + jogoId);
+    public List<AvaliacaoUsuario> buscarPorJogo(Long jogoId) {
+        if (!jogoRepositorio.existsById(jogoId)) {
+            throw new IllegalArgumentException("Jogo não encontrado com ID: " + jogoId);
         }
         return avaliacaoRepositorio.findByJogoId(jogoId);
     }
 
-    public List<AvaliacaoUsuario> buscarPorUsuario(Long usuarioId) throws Exception {
-        Usuario usuario = usuarioRepositorio.findById(usuarioId).orElse(null);
-        if (usuario == null) {
-            throw new Exception("Usuário não encontrado com ID: " + usuarioId);
+    public List<AvaliacaoUsuario> buscarPorUsuario(Long usuarioId) {
+        if (!usuarioRepositorio.existsById(usuarioId)) {
+            throw new IllegalArgumentException("Usuário não encontrado com ID: " + usuarioId);
         }
         return avaliacaoRepositorio.findByUsuarioId(usuarioId);
     }
 
-    //  CÁLCULOS
-
-    public double calcularMediaJogo(Long jogoId) throws Exception {
-        Jogo jogo = jogoRepositorio.findById(jogoId).orElse(null);
-        if (jogo == null) {
-            throw new Exception("Jogo não encontrado com ID: " + jogoId);
+    public double calcularMediaJogo(Long jogoId) {
+        if (!jogoRepositorio.existsById(jogoId)) {
+            throw new IllegalArgumentException("Jogo não encontrado com ID: " + jogoId);
         }
         Double media = avaliacaoRepositorio.calcularMediaJogo(jogoId);
         return media != null ? media : 0.0;
     }
 
-    public double calcularIndiceRecomendacao(Long jogoId) throws Exception {
-        Jogo jogo = jogoRepositorio.findById(jogoId).orElse(null);
-        if (jogo == null) {
-            throw new Exception("Jogo não encontrado com ID: " + jogoId);
-        }
-        Double indice = avaliacaoRepositorio.calcularPercentualRecomendacao(jogoId);
-        return indice != null ? indice : 0.0;
-    }
+    public AvaliacaoUsuario salvar(Long jogoId, AvaliacaoUsuario avaliacao) {
+        Jogo jogo = jogoRepositorio.findById(jogoId).orElseThrow(() -> new IllegalArgumentException("Jogo não encontrado com ID: " + jogoId));
 
-    public long contarPorJogo(Long jogoId) throws Exception {
-        Jogo jogo = jogoRepositorio.findById(jogoId).orElse(null);
-        if (jogo == null) {
-            throw new Exception("Jogo não encontrado com ID: " + jogoId);
-        }
-        return avaliacaoRepositorio.countByJogoId(jogoId);
-    }
-
-    //  CRUD
-
-    public AvaliacaoUsuario salvar(AvaliacaoUsuario avaliacao) throws Exception {
-        if (avaliacao.getUsuario() == null) {
-            throw new Exception("Usuário é obrigatório");
-        }
-        if (avaliacao.getJogo() == null) {
-            throw new Exception("Jogo é obrigatório");
+        if (avaliacao.getUsuario() == null || avaliacao.getUsuario().getId() == null) {
+            throw new IllegalArgumentException("Usuário é obrigatório");
         }
 
-        Usuario usuario = usuarioRepositorio.findById(avaliacao.getUsuario().getId()).orElse(null);
-        if (usuario == null) {
-            throw new Exception("Usuário não encontrado com ID: " + avaliacao.getUsuario().getId());
-        }
-
-        Jogo jogo = jogoRepositorio.findById(avaliacao.getJogo().getId()).orElse(null);
-        if (jogo == null) {
-            throw new Exception("Jogo não encontrado com ID: " + avaliacao.getJogo().getId());
-        }
+        Usuario usuario = usuarioRepositorio.findById(avaliacao.getUsuario().getId()).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + avaliacao.getUsuario().getId()));
 
         if (avaliacao.getNota() < 1 || avaliacao.getNota() > 5) {
-            throw new Exception("Nota deve ser entre 1 e 5");
+            throw new IllegalArgumentException("Nota deve ser entre 1 e 5");
         }
 
         if (avaliacao.getTextoAvaliacao() == null || avaliacao.getTextoAvaliacao().trim().isEmpty()) {
-            throw new Exception("Texto da avaliação é obrigatório");
+            throw new IllegalArgumentException("Texto da avaliação é obrigatório");
         }
+
+        avaliacao.setJogo(jogo);
+        avaliacao.setUsuario(usuario);
+        avaliacao.setIndiceRecomendacao(avaliacao.getNota() >= 4);
 
         return avaliacaoRepositorio.save(avaliacao);
     }
 
-    public AvaliacaoUsuario atualizar(Long id, AvaliacaoUsuario avaliacaoAtualizada) throws Exception {
-        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(id).orElse(null);
-        if (avaliacao == null) {
-            throw new Exception("Avaliação não encontrada com ID: " + id);
+    public AvaliacaoUsuario atualizar(Long jogoId, Long avaliacaoId, AvaliacaoUsuario avaliacaoAtualizada) {
+        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(avaliacaoId).orElseThrow(() -> new IllegalArgumentException("Avaliação não encontrada com ID: " + avaliacaoId));
+
+        if (!avaliacao.getJogo().getId().equals(jogoId)) {
+            throw new IllegalArgumentException("Esta avaliação não pertence ao jogo informado");
         }
 
         if (avaliacaoAtualizada.getNota() >= 1 && avaliacaoAtualizada.getNota() <= 5) {
             avaliacao.setNota(avaliacaoAtualizada.getNota());
+            avaliacao.setIndiceRecomendacao(avaliacao.getNota() >= 4);
         }
 
-        if (avaliacaoAtualizada.getTextoAvaliacao() != null &&
-            !avaliacaoAtualizada.getTextoAvaliacao().trim().isEmpty()) {
+        if (avaliacaoAtualizada.getTextoAvaliacao() != null && !avaliacaoAtualizada.getTextoAvaliacao().trim().isEmpty()) {
             avaliacao.setTextoAvaliacao(avaliacaoAtualizada.getTextoAvaliacao());
         }
-
         return avaliacaoRepositorio.save(avaliacao);
     }
 
-    public void deletar(Long id) throws Exception {
-        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(id).orElse(null);
-        if (avaliacao == null) {
-            throw new Exception("Avaliação não encontrada com ID: " + id);
+    public void deletar(Long jogoId, Long avaliacaoId) {
+        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(avaliacaoId).orElseThrow(() -> new IllegalArgumentException("Avaliação não encontrada"));
+
+        if (!avaliacao.getJogo().getId().equals(jogoId)) {
+            throw new IllegalArgumentException("Esta avaliação não pertence ao jogo informado");
         }
-        avaliacaoRepositorio.deleteById(id);
+        avaliacaoRepositorio.deleteById(avaliacaoId);
     }
-
-    public void deletarPorJogo(Long jogoId) throws Exception {
-        Jogo jogo = jogoRepositorio.findById(jogoId).orElse(null);
-        if (jogo == null) {
-            throw new Exception("Jogo não encontrado com ID: " + jogoId);
-        }
-        avaliacaoRepositorio.deleteByJogoId(jogoId);
-    }
-
-    public void deletarPorUsuario(Long usuarioId) throws Exception {
-        Usuario usuario = usuarioRepositorio.findById(usuarioId).orElse(null);
-        if (usuario == null) {
-            throw new Exception("Usuário não encontrado com ID: " + usuarioId);
-        }
-        avaliacaoRepositorio.deleteByUsuarioId(usuarioId);
-    }
-
-    // CURTIDAS/ VOTOS 
-
-    public AvaliacaoUsuario curtir(Long id) throws Exception {
-        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(id).orElse(null);
-        if (avaliacao == null) {
-            throw new Exception("Avaliação não encontrada com ID: " + id);
-        }
-        avaliacao.curtir();
-        return avaliacaoRepositorio.save(avaliacao);
-    }
-
-    public AvaliacaoUsuario marcarComoUtil(Long id) throws Exception {
-        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(id).orElse(null);
-        if (avaliacao == null) {
-            throw new Exception("Avaliação não encontrada com ID: " + id);
-        }
-        avaliacao.marcarComoUtil();
-        return avaliacaoRepositorio.save(avaliacao);
-    }
-
-    // MÉT. AUXILIARES 
 
     public boolean isRecomendado(AvaliacaoUsuario avaliacao) {
         return avaliacao.isRecomendado();
+    }
+
+    public AvaliacaoUsuario curtir(Long avaliacaoId) {
+        AvaliacaoUsuario avaliacao = avaliacaoRepositorio.findById(avaliacaoId).orElseThrow(() -> new IllegalArgumentException("Avaliação não encontrada"));
+        avaliacao.curtir();
+        return avaliacaoRepositorio.save(avaliacao);
     }
 }

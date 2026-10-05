@@ -2,6 +2,7 @@ package br_com_savepoint.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -18,6 +19,7 @@ public class RequisitosMinimos {
     private String sistemaOperacional;
 
     @OneToOne(mappedBy = "requisitosMinimos")
+    @JsonIgnore
     private Jogo jogo;
 
     public RequisitosMinimos() {

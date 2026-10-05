@@ -2,6 +2,7 @@ package br_com_savepoint.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -11,12 +12,12 @@ public class ItemListaDesejos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private double precoAlerta;
     private boolean notificarOferta;
 
     @ManyToOne
     @JoinColumn(name = "lista_desejos_id", nullable = false)
+    @JsonIgnore
     private ListaDesejos listaDesejos;
 
     @ManyToOne
@@ -32,8 +33,7 @@ public class ItemListaDesejos {
         this.notificarOferta = notificarOferta;
     }
 
-    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta,
-                            ListaDesejos listaDesejos, Jogo jogo) {
+    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta, ListaDesejos listaDesejos, Jogo jogo) {
         this.id = id;
         this.precoAlerta = precoAlerta;
         this.notificarOferta = notificarOferta;
