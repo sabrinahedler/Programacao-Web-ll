@@ -39,7 +39,7 @@ public class Jogo {
     @JsonIgnore
     private List<AvaliacaoUsuario> avaliacoes;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "resumo_avaliacao_id")
     private ResumoAvaliacao resumoAvaliacao;
 

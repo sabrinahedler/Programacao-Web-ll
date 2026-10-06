@@ -13,15 +13,16 @@ public class AvaliacaoUsuario {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int nota;
+    private Integer nota;
 
     @Column(columnDefinition = "TEXT")
     private String textoAvaliacao;
 
     private LocalDateTime dataPublicacao = LocalDateTime.now();
-    private int curtidas = 0;
-    private int horasJogadas = 0;
-    private boolean indiceRecomendacao;
+
+    private Integer curtidas = 0;
+    private Integer horasJogadas = 0;
+    private Boolean indiceRecomendacao;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -34,11 +35,11 @@ public class AvaliacaoUsuario {
     public AvaliacaoUsuario() {
         this.dataPublicacao = LocalDateTime.now();
         this.curtidas = 0;
-        this.indiceRecomendacao = false;
         this.horasJogadas = 0;
+        this.indiceRecomendacao = false;
     }
 
-    public AvaliacaoUsuario(Long id, int nota, String textoAvaliacao, LocalDateTime dataPublicacao, int curtidas, int horasJogadas, boolean indiceRecomendacao, Usuario usuario, Jogo jogo) {
+    public AvaliacaoUsuario(Long id, Integer nota, String textoAvaliacao, LocalDateTime dataPublicacao, Integer curtidas, Integer horasJogadas, Boolean indiceRecomendacao, Usuario usuario, Jogo jogo) {
         this.id = id;
         this.nota = nota;
         this.textoAvaliacao = textoAvaliacao;
@@ -59,10 +60,16 @@ public class AvaliacaoUsuario {
     }
 
     public void curtir() {
+        if (this.curtidas == null) {
+            this.curtidas = 0;
+        }
         this.curtidas++;
     }
 
     public boolean isRecomendado() {
+        if (this.nota == null) {
+            return false;
+        }
         return this.nota >= 4;
     }
 

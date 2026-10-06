@@ -8,6 +8,7 @@ import br_com_savepoint.repository.ItemListaDesejosRepository;
 import br_com_savepoint.repository.JogoRepository;
 import br_com_savepoint.repository.ListaDesejosRepository;
 import br_com_savepoint.repository.UsuarioRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -84,6 +85,7 @@ public class ListaDesejosService {
     }
 
     // DELETE /usuarios/{usuarioId}/lista-desejos/{listaId}
+    @Transactional
     public boolean deletarLista(Long usuarioId, Long listaId) {
         Optional<ListaDesejos> listaOptional = listaDesejosRepository.findById(listaId);
 
@@ -93,9 +95,19 @@ public class ListaDesejosService {
 
         ListaDesejos lista = listaOptional.get();
 
-        if (lista.getUsuario() == null
-                || !lista.getUsuario().getId().equals(usuarioId)) {
+        if (lista.getUsuario() == null || !lista.getUsuario().getId().equals(usuarioId)) {
             return false;
+        }
+
+        Usuario usuario = lista.getUsuario();
+        usuario.setListaDesejos(null);
+        lista.setUsuario(null);
+
+        usuarioRepository.save(usuario);
+
+        lista.setUsuario(null);
+        if (lista.getJogos() != null) {
+            lista.getJogos().clear();
         }
 
         listaDesejosRepository.deleteById(listaId);

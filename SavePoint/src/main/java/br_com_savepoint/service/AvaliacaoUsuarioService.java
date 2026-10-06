@@ -64,6 +64,13 @@ public class AvaliacaoUsuarioService {
 
         avaliacao.setJogo(jogo);
         avaliacao.setUsuario(usuario);
+        if (avaliacao.getCurtidas() == null) {
+            avaliacao.setCurtidas(0);
+        }
+        if (avaliacao.getHorasJogadas() == null) {
+            avaliacao.setHorasJogadas(0);
+        }
+
         avaliacao.setIndiceRecomendacao(avaliacao.getNota() >= 4);
 
         return avaliacaoRepositorio.save(avaliacao);
