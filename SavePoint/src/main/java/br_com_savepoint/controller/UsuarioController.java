@@ -55,26 +55,6 @@ public class UsuarioController {
         return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<Usuario> login(@RequestBody Usuario credenciais) {
-        try {
-            Usuario usuarioLogado = usuarioService.login(credenciais.getEmail(), credenciais.getSenha());
-            return ResponseEntity.ok(usuarioLogado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<?> criar(@RequestBody Usuario usuario) {
-        try {
-            Usuario novoUsuario = usuarioService.salvar(usuario);
-            return new ResponseEntity<Usuario>(novoUsuario, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario) {
         try {

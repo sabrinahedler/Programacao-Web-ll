@@ -20,14 +20,8 @@ public class ResumoAvaliacao {
     private int totalAvaliacoes;
     private double percentualRecomendacao;
 
-    @ElementCollection
-    @CollectionTable(name = "tb_resumo_elogios", joinColumns = @JoinColumn(name = "resumo_id"))
-    @Column(name = "elogio")
     private List<String> principaisElogios = new ArrayList<>();
 
-    @ElementCollection
-    @CollectionTable(name = "tb_resumo_criticas", joinColumns = @JoinColumn(name = "resumo_id"))
-    @Column(name = "critica")
     private List<String> principaisCriticas = new ArrayList<>();
 
     @Column(columnDefinition = "TEXT")

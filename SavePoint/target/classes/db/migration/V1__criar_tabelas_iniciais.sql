@@ -21,6 +21,7 @@ CREATE TABLE tb_requisitos_minimos (
 -- Usuario do sistema.
 CREATE TABLE tb_usuario (
                           id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                          role TEXT NOT NULL,
                           nome VARCHAR(255) NOT NULL,
                           email VARCHAR(255) NOT NULL UNIQUE,
                           senha VARCHAR(255) NOT NULL,
