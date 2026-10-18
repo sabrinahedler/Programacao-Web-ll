@@ -1,0 +1,54 @@
+package br_com_savepoint.model;
+
+import jakarta.persistence.*;
+import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Data
+@Entity
+@Table(name = "tb_item_lista_desejos")
+public class ItemListaDesejos {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private double precoAlerta;
+    private boolean notificarOferta;
+
+    @ManyToOne
+    @JoinColumn(name = "lista_desejos_id", nullable = false)
+    @JsonIgnore
+    private ListaDesejos listaDesejos;
+
+    @ManyToOne
+    @JoinColumn(name = "jogo_id", nullable = false)
+    private Jogo jogo;
+
+    public ItemListaDesejos() {
+    }
+
+    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta) {
+        this.id = id;
+        this.precoAlerta = precoAlerta;
+        this.notificarOferta = notificarOferta;
+    }
+
+    public ItemListaDesejos(Long id, double precoAlerta, boolean notificarOferta, ListaDesejos listaDesejos, Jogo jogo) {
+        this.id = id;
+        this.precoAlerta = precoAlerta;
+        this.notificarOferta = notificarOferta;
+        this.listaDesejos = listaDesejos;
+        this.jogo = jogo;
+    }
+
+    @Override
+    public String toString() {
+        return "ItemListaDesejos{" +
+                "id=" + id +
+                ", precoAlerta=" + precoAlerta +
+                ", notificarOferta=" + notificarOferta +
+                ", jogoId=" + (jogo != null ? jogo.getId() : null) +
+                ", listaDesejosId=" + (listaDesejos != null ? listaDesejos.getId() : null) +
+                '}';
+    }
+}
