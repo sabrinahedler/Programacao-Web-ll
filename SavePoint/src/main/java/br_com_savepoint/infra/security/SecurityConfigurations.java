@@ -33,6 +33,14 @@ public class SecurityConfigurations {
 
                         .requestMatchers("/error").permitAll()
 
+                        .requestMatchers("/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
                         .requestMatchers(HttpMethod.GET, "/jogos/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/lojas/**").permitAll()
 
