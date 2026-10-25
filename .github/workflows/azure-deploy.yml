@@ -11,24 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar o código do repositório
+      - name: Baixa o código do repositório
         uses: actions/checkout@v4
 
-      - name: Configurar o JDK 21
+      - name: Configura o JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
 
-      - name: Dar permissão de execução ao mvnw
-        run: chmod +x SavePoint/mvnw
-
-      - name: Compilar projeto com Maven
+      - name: Compila projeto com Maven
         working-directory: ./SavePoint
-        run: ./mvnw clean package -DskipTests
+        run: mvn clean package -DskipTests
 
-      - name: Enviar pacote compilado para o Azure App Service
+      - name: Pacote compilado para o Azure App Service
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'savepoint'
