@@ -28,7 +28,9 @@ public class Usuario implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonIgnore
     private String senha;
+
     private String telefone;
     private LocalDateTime dataCadastro = LocalDateTime.now();
     private LocalDateTime ultimoAcesso;
@@ -103,6 +105,7 @@ public class Usuario implements UserDetails {
         else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
+    @JsonIgnore
     @Override
     public String getPassword() {
         return this.senha;
@@ -113,11 +116,13 @@ public class Usuario implements UserDetails {
         return this.email;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;

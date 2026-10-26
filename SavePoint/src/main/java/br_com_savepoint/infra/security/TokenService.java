@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TokenService {
@@ -29,6 +30,19 @@ public class TokenService {
             return token;
         } catch (JWTCreationException exception){
             throw new RuntimeException("Erro enquanto gerava o token");
+        }
+    }
+
+    public String generateRefreshToken(Usuario usuario) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            return JWT.create()
+                    .withIssuer("auth-api")
+                    .withSubject(usuario.getEmail())
+                    .withExpiresAt(Instant.now().plus(7, ChronoUnit.DAYS))
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new RuntimeException("Erro ao gerar refresh token", exception);
         }
     }
 

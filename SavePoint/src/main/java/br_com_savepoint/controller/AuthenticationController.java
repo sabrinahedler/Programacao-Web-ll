@@ -2,13 +2,11 @@ package br_com_savepoint.controller;
 
 
 import br_com_savepoint.infra.security.TokenService;
-import br_com_savepoint.model.AuthenticationDTO;
-import br_com_savepoint.model.LoginResponseDTO;
-import br_com_savepoint.model.RegisterDTO;
-import br_com_savepoint.model.Usuario;
+import br_com_savepoint.model.*;
 import br_com_savepoint.repository.UsuarioRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,13 +32,34 @@ public class AuthenticationController {
             var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.senha());
             var auth = this.authenticationManager.authenticate(usernamePassword);
 
-            var token = tokenService.generateToken((Usuario) auth.getPrincipal());
+            Usuario usuario = (Usuario) auth.getPrincipal();
 
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            var token = tokenService.generateToken(usuario);
+            var refreshToken = tokenService.generateRefreshToken(usuario);
+
+            return ResponseEntity.ok(new LoginResponseDTO(token, refreshToken));
 
         } catch (org.springframework.security.authentication.BadCredentialsException e) {
             return ResponseEntity.status(org.springframework.http.HttpStatus.UNAUTHORIZED).body("E-mail ou senha incorretos.");
         }
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity refreshToken(@RequestBody @Valid RefreshTokenDTO data) {
+        var email = tokenService.validateToken(data.refreshToken());
+
+        if (email.isBlank()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Refresh Token inválido ou expirado.");
+        }
+
+        var usuario = repository.findByEmail(email).orElse(null);
+        if (usuario == null || !usuario.isEnabled()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não encontrado ou desativado.");
+        }
+
+        var novoToken = tokenService.generateToken(usuario);
+
+        return ResponseEntity.ok(new LoginResponseDTO(novoToken, data.refreshToken()));
     }
 
     @PostMapping("/register")
