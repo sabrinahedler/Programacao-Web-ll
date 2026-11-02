@@ -7,6 +7,10 @@
   <meta name="description" content="Compare preços de jogos para PC e encontre sua próxima oferta na SavePoint.">
   <title>SavePoint — Seu próximo jogo. Seu próximo melhor preço.</title>
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- integrando a api no html-->
+  <script src="js/api.js" defer></script>
+
   <script src="js/script.js" defer></script>
 </head>
 <body>
@@ -17,7 +21,7 @@
     <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav">Menu</button>
     <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
       <a class="active" href="#inicio">Início</a>
-      <a href="login.html">Entrar</a>
+      <a href="login.html" id="nav-auth">Entrar</a>
       <a href="#ofertas">Jogos</a>
       <a href="#wishlist">Wishlist</a>
       <a href="#assistente">IA</a>
@@ -29,8 +33,6 @@
       <button class="icon-button profile-button" type="button" aria-label="Perfil">●</button>
     </div>
          </header>
-
-
 
   <main>
     <section class="hero" id="inicio">
@@ -57,8 +59,6 @@
       </div>
     </section>
 
-
-
     <section class="section deals-section" id="ofertas">
       <div class="section-heading">
         <div>
@@ -67,45 +67,13 @@
         </div>
         <a class="text-link" href="#descontos">Ver todas <span aria-hidden="true">→</span></a>
       </div>
-      <div class="deal-grid" id="deal-grid">
-        <article class="game-card" data-title="Elden Ring" data-sale="true">
-          <div class="game-art art-elden" role="img" aria-label="Arte ilustrativa de fantasia sombria"><span>ELDEN RING</span></div>
-          <div class="game-card-body">
-            <div class="game-title-row"><h3>Elden Ring</h3><span class="store-label">PC</span></div>
-            <p class="game-tags">RPG <span>•</span> Ação <span>•</span> Mundo aberto</p>
-            <div class="price-row"><span class="discount">-35%</span><strong>R$ 129,90</strong><del>R$ 199,90</del></div>
-            <p class="store-name">◉ Steam <span class="deal-status">Oferta ilustrativa</span></p>
-          </div>
-        </article>
-        <article class="game-card" data-title="Baldur's Gate 3" data-sale="true">
-          <div class="game-art art-baldur" role="img" aria-label="Arte ilustrativa de aventura fantástica"><span>BALDUR'S GATE 3</span></div>
-          <div class="game-card-body">
-            <div class="game-title-row"><h3>Baldur's Gate 3</h3><span class="store-label">PC</span></div>
-            <p class="game-tags">RPG <span>•</span> Turnos <span>•</span> Aventura</p>
-            <div class="price-row"><span class="discount">-20%</span><strong>R$ 159,90</strong><del>R$ 199,90</del></div>
-            <p class="store-name">◉ Steam <span class="deal-status">Oferta ilustrativa</span></p>
-          </div>
-        </article>
-        <article class="game-card" data-title="Cyberpunk 2077" data-sale="true">
-          <div class="game-art art-cyber" role="img" aria-label="Arte ilustrativa de ficção científica"><span>CYBERPUNK 2077</span></div>
-          <div class="game-card-body">
-            <div class="game-title-row"><h3>Cyberpunk 2077</h3><span class="store-label">PC</span></div>
-            <p class="game-tags">RPG <span>•</span> Ação <span>•</span> Mundo aberto</p>
-            <div class="price-row"><span class="discount">-50%</span><strong>R$ 79,90</strong><del>R$ 159,90</del></div>
-            <p class="store-name">◉ Steam <span class="deal-status">Oferta ilustrativa</span></p>
-          </div>
-        </article>
-        <article class="game-card" data-title="Red Dead Redemption 2" data-sale="true">
-          <div class="game-art art-reddead" role="img" aria-label="Arte ilustrativa de faroeste"><span>RED DEAD REDEMPTION 2</span></div>
-          <div class="game-card-body">
-            <div class="game-title-row"><h3>Red Dead Redemption 2</h3><span class="store-label">PC</span></div>
-            <p class="game-tags">Ação <span>•</span> Aventura <span>•</span> Mundo aberto</p>
-            <div class="price-row"><span class="discount">-50%</span><strong>R$ 99,95</strong><del>R$ 199,90</del></div>
-            <p class="store-name">◉ Steam <span class="deal-status">Oferta ilustrativa</span></p>
-          </div>
-        </article>
+      <div class="deal-grid" id="deal-grid" aria-busy="true">
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
       </div>
-      <p class="demo-notice">Demonstração visual: jogos, preços e descontos são fictícios e ainda não vêm de lojas reais.</p>
+      <p class="demo-notice" id="deals-notice" aria-live="polite">Carregando jogos...</p>
     </section>
 
     <section class="content-grid">
@@ -116,10 +84,12 @@
         </div>
         <div class="discount-table">
           <div class="table-head"><span>Jogo</span><span>Desconto</span><span>Preço</span></div>
-          <article class="discount-row"><div class="mini-cover mini-hogwarts">H</div><div class="row-game"><strong>Hogwarts Legacy</strong><small>RPG · Aventura</small></div><span class="discount">-75%</span><div class="row-price"><strong>R$ 49,99</strong><del>R$ 199,90</del></div></article>
-          <article class="discount-row"><div class="mini-cover mini-racing">FH</div><div class="row-game"><strong>Forza Horizon 5</strong><small>Corrida · Mundo aberto</small></div><span class="discount">-50%</span><div class="row-price"><strong>R$ 99,95</strong><del>R$ 199,90</del></div></article>
-          <article class="discount-row"><div class="mini-cover mini-witcher">W</div><div class="row-game"><strong>The Witcher 3: Wild Hunt</strong><small>RPG · Mundo aberto</small></div><span class="discount">-70%</span><div class="row-price"><strong>R$ 59,97</strong><del>R$ 199,90</del></div></article>
-          <article class="discount-row"><div class="mini-cover mini-spider">SM</div><div class="row-game"><strong>Marvel's Spider-Man Remastered</strong><small>Ação · Aventura</small></div><span class="discount">-50%</span><div class="row-price"><strong>R$ 99,95</strong><del>R$ 199,90</del></div></article>
+          <div id="discount-list" aria-busy="true">
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+          </div>
         </div>
       </section>
 

@@ -553,3 +553,17 @@ del { color: #777D91; font-size: 10px; }
         line-height: 1.6;
     }
 }
+
+/* integração com o back-end */
+
+.game-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.art-generica { background: radial-gradient(circle at 70% 30%, var(--lime), transparent 22%), linear-gradient(135deg, #1D1F2B, #0E0F14 55%, var(--purple)); }
+.mini-generica { background: linear-gradient(140deg, var(--purple), #171922 70%); }
+
+.skeleton { background: linear-gradient(90deg, #171922 25%, #23263A 50%, #171922 75%); background-size: 200% 100%; animation: skeleton-shimmer 1.2s ease-in-out infinite; }
+.skeleton-card { height: 260px; }
+.skeleton-row { height: 52px; border-radius: 6px; margin: 10px 0; }
+@keyframes skeleton-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+
+.auth-submit:disabled { opacity: .6; cursor: progress; transform: none; }

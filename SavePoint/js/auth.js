@@ -68,7 +68,21 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    loginPanel.addEventListener("submit", (event) => {
+    function setLoading(form, isLoading) {
+        const button = form.querySelector(".auth-submit");
+
+        button.disabled = isLoading;
+        form.setAttribute("aria-busy", String(isLoading));
+    }
+
+    async function entrarERedirecionar(email, senha) {
+        const resposta = await SavePointApi.login(email, senha);
+
+        salvarSessao(resposta);
+        window.location.replace("index.html");
+    }
+
+    loginPanel.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearFeedback();
 
@@ -76,13 +90,22 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        showFeedback(
-            "A interface está pronta! O login será habilitado quando conectarmos o sistema de autenticação.",
-            "success"
-        );
+        const email = document.querySelector("#login-email").value.trim();
+        const senha = document.querySelector("#login-password").value;
+
+        setLoading(loginPanel, true);
+        showFeedback("Entrando...");
+
+        try {
+            await entrarERedirecionar(email, senha);
+        } catch (erro) {
+            showFeedback(erro.message, "error");
+        } finally {
+            setLoading(loginPanel, false);
+        }
     });
 
-    registerPanel.addEventListener("submit", (event) => {
+    registerPanel.addEventListener("submit", async (event) => {
         event.preventDefault();
         clearFeedback();
 
@@ -90,6 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        const nome = document.querySelector("#register-username").value.trim();
+        const email = document.querySelector("#register-email").value.trim();
         const password = document.querySelector("#register-password").value;
 
         const confirmPassword = document.querySelector(
@@ -107,10 +132,17 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        showFeedback(
-            "O formulário está válido! A criação da conta será habilitada quando conectarmos o back-end.",
-            "success"
-        );
+        setLoading(registerPanel, true);
+        showFeedback("Criando sua conta...");
+
+        try {
+            await SavePointApi.cadastrar(nome, email, password);
+            await entrarERedirecionar(email, password);
+        } catch (erro) {
+            showFeedback(erro.message, "error");
+        } finally {
+            setLoading(registerPanel, false);
+        }
     });
 
     switchMode("login");
