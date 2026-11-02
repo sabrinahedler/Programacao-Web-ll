@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Entre ou crie sua conta no SavePoint para acompanhar seus jogos favoritos."
+    >
+
+    <title>Entrar | SavePoint</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/auth.js" defer></script>
+</head>
+
+<body class="auth-page">
+
+    <header class="site-header auth-header">
+
+        <a class="brand" href="index.html" aria-label="SavePoint - Página inicial">
+            <img
+                src="assets/logo.png"
+                alt="SavePoint"
+                class="brand-logo"
+            >
+        </a>
+
+        <a class="auth-back-link" href="index.html">
+            ← Voltar ao início
+        </a>
+
+    </header>
+
+    <main class="auth-main">
+
+        <section class="auth-card" aria-labelledby="auth-title">
+
+            <a href="index.html" class="auth-logo">
+                <img src="assets/logo.png" alt="SavePoint">
+            </a>
+
+            <p class="auth-eyebrow">SUA JORNADA COMEÇA AQUI</p>
+
+            <h1 id="auth-title">Bem-vindo de volta.</h1>
+
+            <p class="auth-description" id="auth-description">
+                Entre na sua conta e continue acompanhando suas ofertas.
+            </p>
+
+            <div class="auth-tabs" role="tablist" aria-label="Autenticação">
+
+                <button
+                    type="button"
+                    class="auth-tab active"
+                    id="login-tab"
+                    role="tab"
+                    aria-selected="true"
+                    aria-controls="login-panel"
+                >
+                    Entrar
+                </button>
+
+                <button
+                    type="button"
+                    class="auth-tab"
+                    id="register-tab"
+                    role="tab"
+                    aria-selected="false"
+                    aria-controls="register-panel"
+                >
+                    Criar conta
+                </button>
+
+            </div>
+
+<!-- FORMULÁRIO DE LOGIN -->
+
+            <form id="login-panel" class="auth-form" novalidate>
+
+                <div class="auth-field">
+
+                    <label for="login-email">E-mail</label>
+
+                    <input
+                        type="email"
+                        id="login-email"
+                        name="email"
+                        placeholder="voce@exemplo.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+                <div class="auth-field">
+
+                    <label for="login-password">Senha</label>
+
+                    <input
+                        type="password"
+                        id="login-password"
+                        name="password"
+                        placeholder="Digite sua senha"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit" class="auth-submit">
+                    Entrar na conta <span aria-hidden="true">→</span>
+                </button>
+
+                <p class="auth-switch">
+                    Ainda não tem uma conta?
+
+                    <button type="button" data-switch="register">
+                        Criar conta
+                    </button>
+                </p>
+
+            </form>
+
+<!--FORMULÁRIO DE CADASTRO-->
+
+            <form
+                id="register-panel"
+                class="auth-form"
+                hidden
+                novalidate
+            >
+
+                <div class="auth-field">
+
+                    <label for="register-username">Username</label>
+
+                    <input
+                        type="text"
+                        id="register-username"
+                        name="username"
+                        placeholder="Seu nome de usuário"
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="30"
+                        required
+                    >
+
+                    <small>Escolha um nome entre 3 a 30 caracteres.</small>
+
+                </div>
+
+                <div class="auth-field">
+
+                    <label for="register-email">E-mail</label>
+
+                    <input
+                        type="email"
+                        id="register-email"
+                        name="email"
+                        placeholder="voce@exemplo.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+                <div class="auth-field">
+
+                    <label for="register-password">Senha</label>
+
+                    <input
+                        type="password"
+                        id="register-password"
+                        name="password"
+                        placeholder="Crie uma senha"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+
+                    <small>Utilize pelo menos 8 caracteres.</small>
+
+                </div>
+
+                <div class="auth-field">
+
+                    <label for="register-confirm-password">
+                        Confirme sua senha
+                    </label>
+
+                    <input
+                        type="password"
+                        id="register-confirm-password"
+                        name="confirm-password"
+                        placeholder="Digite a senha novamente"
+                        autocomplete="new-password"
+                        minlength="8"
+                        required
+                    >
+
+                </div>
+
+                <button type="submit" class="auth-submit">
+                    Criar minha conta <span aria-hidden="true">→</span>
+                </button>
+
+                <p class="auth-switch">
+                    Já tem uma conta?
+
+                    <button type="button" data-switch="login">
+                        Entrar
+                    </button>
+                </p>
+
+            </form>
+
+            <p
+                class="auth-feedback"
+                id="auth-feedback"
+                role="status"
+                aria-live="polite"
+                hidden
+            ></p>
+
+            <p class="auth-terms">
+                Ao continuar, você concorda com os termos de uso
+                e a política de privacidade do SavePoint.
+            </p>
+
+        </section>
+
+        <p class="auth-footer">
+            © 2026 SavePoint. Encontre seu próximo jogo pelo melhor preço.
+        </p>
+
+    </main>
+
+</body>
+
+</html>
