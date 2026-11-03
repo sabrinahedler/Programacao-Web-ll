@@ -31,6 +31,9 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
 
+                        .requestMatchers("/", "/index.html", "/login.html", "/*.html").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/assets/**").permitAll()
+
                         .requestMatchers("/error").permitAll()
 
                         .requestMatchers("/swagger-ui/**",

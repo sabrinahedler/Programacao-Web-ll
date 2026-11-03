@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <meta name="description" content="Compare preços de jogos para PC e encontre sua próxima oferta na SavePoint.">
+  <title>SavePoint — Seu próximo jogo. Seu próximo melhor preço.</title>
+  <link rel="stylesheet" href="../../../../css/style.css">
+
+  <!-- integrando a api no html-->
+  <script src="../../../../js/api.js" defer></script>
+
+  <script src="../../../../js/script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="SavePoint — início">
+      <img src="../../../../assets/logo.png" alt="SavePoint" class="brand-logo">
+    </a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="main-nav">Menu</button>
+    <nav class="main-nav" id="main-nav" aria-label="Navegação principal">
+      <a class="active" href="#inicio">Início</a>
+      <a href="login.html" id="nav-auth">Entrar</a>
+      <a href="#ofertas">Jogos</a>
+      <a href="#wishlist">Wishlist</a>
+      <a href="#assistente">IA</a>
+      <a href="#sobre">Sobre</a>
+    </nav>
+    <div class="header-actions">
+      <button class="icon-button" type="button" aria-label="Focar busca" id="focus-search">⌕</button>
+      <button class="icon-button" type="button" aria-label="Notificações">♧</button>
+      <button class="icon-button profile-button" type="button" aria-label="Perfil">●</button>
+    </div>
+         </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="hero-content">
+        <p class="eyebrow">COMPARE. ECONOMIZE. JOGUE.</p>
+        <h1><span class="headline-purple">Seu próximo jogo.</span><br><span class="headline-green">Seu próximo melhor preço.</span></h1>
+        <p class="hero-copy">Compare preços em diversas lojas, acompanhe ofertas e descubra se vale a pena comprar agora.</p>
+        <form class="search-form" id="search-form" role="search">
+          <label class="sr-only" for="game-search">Busque jogos, gêneros ou franquias</label>
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="game-search" type="search" placeholder="Busque jogos, gêneros, franquias..." autocomplete="off">
+          <button class="search-submit" type="submit" aria-label="Buscar">→</button>
+        </form>
+        <div class="quick-filters" aria-label="Atalhos">
+          <button class="filter-chip selected" data-filter="sale" type="button">✦ Em promoção</button>
+          <button class="filter-chip" data-filter="all" type="button">◇ Todos os jogos</button>
+          <a class="filter-chip" href="#wishlist">♡ Minha wishlist</a>
+          <a class="filter-chip" href="#assistente">✧ Com IA</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="Arte decorativa de fantasia">
+        <div class="hero-art-overlay"></div>
+        <p class="hero-note">Caçar as melhores ofertas não precisa ser igual um <em>Souls-like</em>: Descubra as melhores promoções hoje!</p>
+      </div>
+    </section>
+
+    <section class="section deals-section" id="ofertas">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">ESCOLHAS DA COMUNIDADE</p>
+            <h2><span class="lime-symbol">✦</span> Ofertas em destaque</h2>
+        </div>
+        <a class="text-link" href="#descontos">Ver todas <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="deal-grid" id="deal-grid" aria-busy="true">
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+        <div class="game-card skeleton skeleton-card" aria-hidden="true"></div>
+      </div>
+      <p class="demo-notice" id="deals-notice" aria-live="polite">Carregando jogos...</p>
+    </section>
+
+    <section class="content-grid">
+      <section class="panel discounts-panel" id="descontos">
+        <div class="panel-heading">
+          <div><span class="panel-icon purple-icon">▥</span><h2>Maiores descontos do dia</h2></div>
+          <a class="text-link" href="#ofertas">Ver todas <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="discount-table">
+          <div class="table-head"><span>Jogo</span><span>Desconto</span><span>Preço</span></div>
+          <div id="discount-list" aria-busy="true">
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+            <div class="skeleton skeleton-row" aria-hidden="true"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel ai-panel" id="assistente">
+        <div class="ai-heading"><span class="ai-sparkle">✧</span><div><p class="section-kicker">SAVEPOINT INTELIGENTE</p><h2>Assistente de IA <span class="beta-badge">BETA</span></h2></div></div>
+        <h3>Tire suas dúvidas e encontre a melhor oferta.</h3>
+        <p class="ai-copy">Compare preços, entenda as avaliações e descubra se vale a pena comprar agora.</p>
+        <form class="ai-form" id="ai-form">
+          <label class="sr-only" for="ai-question">Pergunte ao assistente</label>
+          <input id="ai-question" type="text" placeholder="Qual jogo você quer comparar?">
+          <button type="submit" aria-label="Enviar pergunta">→</button>
+        </form>
+        <p class="ai-feedback" id="ai-feedback" aria-live="polite">O assistente será conectado em uma etapa futura.</p>
+        <div class="ai-feature"><span>⌘</span><div><strong>Comparação inteligente</strong><p>Encontre preços entre diferentes lojas.</p></div></div>
+        <div class="ai-feature"><span>♡</span><div><strong>Resumo de avaliações</strong><p>Veja os pontos positivos e negativos mais citados.</p></div></div>
+        <div class="ai-feature"><span>↗</span><div><strong>Análise de custo-benefício</strong><p>Entenda se o preço atual parece uma boa oportunidade.</p></div></div>
+      </aside>
+    </section>
+
+
+
+    <section class="wishlist-banner" id="wishlist">
+      <div class="wishlist-icon">🎮</div>
+      <div><h2>Crie sua wishlist</h2><p>Salve os jogos que te interessam e acompanhe futuras quedas de preço.</p></div>
+      <button class="outline-button" id="wishlist-button" type="button">Acessar wishlist <span aria-hidden="true">→</span></button>
+    </section>
+  </main>
+
+
+
+
+
+  <footer class="site-footer" id="sobre">
+    <div class="footer-main">
+    <a class="brand footer-brand" href="#inicio"><img src="../../../../assets/logo.png" alt="SavePoint" class="brand-logo"></a>
+    <nav aria-label="Navegação do rodapé"><a href="#inicio">Início</a><a href="#ofertas">Jogos</a><a href="#wishlist">Wishlist</a><a href="#assistente">IA</a><a href="#sobre">Sobre</a></nav>
+        <p class="footer-social">Comunidade · Redes sociais</p>
+    </div>
+    <div class="footer-bottom"><span>© 2026 SavePoint. Projeto em desenvolvimento.</span><span>Preços ilustrativos; valores reais dependerão das lojas e da região.</span></div>
+  </footer>
+</body>
+</html>
