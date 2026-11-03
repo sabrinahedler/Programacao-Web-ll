@@ -1,54 +1,24 @@
-// quando colocar a aplicação no banco de dados, inserir o endereço do banco
-const API_BASE_URL = "http://localhost:8080";
+//
+const API_BASE_URL = "";
 
-const SESSION_KEY = "savepoint.sessao";
+const TOKEN_STORAGE_KEY = "savepoint_jwt_token";
 
-// guarda o retorno do POST /auth/login
-function salvarSessao(respostaLogin) {
-    const sessao = {
-        token: respostaLogin.token,
-        tipo: respostaLogin.tipo,
-        role: respostaLogin.role,
-        expiraEm: Date.now() + respostaLogin.expiraEmSegundos * 1000,
-    };
-
-    try {
-        localStorage.setItem(SESSION_KEY, JSON.stringify(sessao));
-    } catch {
-        // segue sem sessão salva
+function salvarToken(token) {
+    if (token) {
+        localStorage.setItem(TOKEN_STORAGE_KEY, token);
     }
 }
 
-// retorna sessão salva, ou null se não existir/token já expirou
-function obterSessao() {
-    try {
-        const sessao = JSON.parse(localStorage.getItem(SESSION_KEY));
-
-        if (!sessao || !sessao.token) {
-            return null;
-        }
-
-        if (Date.now() >= sessao.expiraEm) {
-            limparSessao();
-            return null;
-        }
-
-        return sessao;
-    } catch {
-        return null;
-    }
+function obterToken() {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
 }
 
 function limparSessao() {
-    try {
-        localStorage.removeItem(SESSION_KEY);
-    } catch {
-        // nada a fazer
-    }
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
 }
 
 function estaLogado() {
-    return obterSessao() !== null;
+    return !!obterToken();
 }
 
 // guarda o status HTTP e a mensagem que o back-end retornou
@@ -59,83 +29,110 @@ class ApiError extends Error {
     }
 }
 
-function mensagemPadrao(status) {
-    if (status === 401) return "Sua sessão expirou. Entre novamente.";
-    if (status === 403) return "Você não tem permissão para esta ação.";
-    if (status === 404) return "Recurso não encontrado.";
-    if (status >= 500) return "Erro no servidor. Tente novamente em instantes.";
-    return "Não foi possível concluir a requisição.";
+function obterMensagemErroPadrao(status) {
+    switch (status) {
+        case 400:
+            return "Requisição inválida. Verifique os dados preenchidos.";
+        case 401:
+            return "Credenciais inválidas ou sessão expirada.";
+        case 403:
+            return "Acesso negado. Você não tem permissão para esta ação.";
+        case 404:
+            return "Recurso não encontrado.";
+        case 500:
+            return "Erro interno no servidor. Tente novamente mais tarde.";
+        default:
+            return "Ocorreu um erro ao processar a requisição.";
+    }
 }
 
 // função central
-async function apiRequest(caminho, { method = "GET", body, autenticado = false } = {}) {
+async function apiRequest(endpoint, { method = "GET", body = null, autenticado = false } = {}) {
     const headers = {};
 
-    if (body !== undefined) {
+    if (body) {
         headers["Content-Type"] = "application/json";
     }
 
     if (autenticado) {
-        const sessao = obterSessao();
-        if (sessao) {
-            headers["Authorization"] = `${sessao.tipo} ${sessao.token}`;
+        const token = obterToken();
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
         }
     }
 
     let resposta;
 
     try {
-        resposta = await fetch(API_BASE_URL + caminho, {
+        resposta = await fetch(API_BASE_URL + endpoint, {
             method,
             headers,
-            body: body !== undefined ? JSON.stringify(body) : undefined,
+            body: body ? JSON.stringify(body) : null,
         });
-    } catch {
-        throw new ApiError(0, "Não foi possível conectar ao servidor. Verifique se o back-end está rodando.");
+    } catch (err) {
+        throw new ApiError(0, "Não foi possível conectar ao servidor. Verifique sua conexão.");
     }
 
-    const texto = await resposta.text();
+    const textoResposta = await resposta.text();
     let dados = null;
 
-    if (texto) {
+    if (textoResposta) {
         try {
-            dados = JSON.parse(texto);
+            dados = JSON.parse(textoResposta);
         } catch {
-            dados = texto;
+            dados = textoResposta;
         }
     }
 
     if (!resposta.ok) {
-        // token inválido: descarta a sessão para o site voltar ao modo visitante
         if (resposta.status === 401 && autenticado) {
             limparSessao();
         }
 
-        const mensagem =
-            (dados && dados.mensagem) ||
-            (typeof dados === "string" && dados) ||
-            mensagemPadrao(resposta.status);
+        let mensagemErro = obterMensagemErroPadrao(resposta.status);
 
-        throw new ApiError(resposta.status, mensagem);
+        if (dados) {
+            if (typeof dados === "string") {
+                mensagemErro = dados;
+            } else if (dados.mensagem) {
+                mensagemErro = dados.mensagem;
+            } else if (dados.erro) {
+                mensagemErro = dados.erro;
+            }
+        }
+        throw new ApiError(resposta.status, mensagemErro);
     }
-
     return dados;
 }
 
 // endpoints usados
 const SavePointApi = {
-    // POST /auth/login  ->  { token, tipo, expiraEmSegundos, role }
-    login: (email, senha) =>
-        apiRequest("/auth/login", { method: "POST", body: { email, senha } }),
+    login: async (email, senha) => {
+        const dados = await apiRequest("/auth/login", {
+            method: "POST",
+            body: { email, senha },
+        });
+        if (dados && dados.token) {
+            salvarToken(dados.token);
+        }
+        return dados;
+    },
 
-    // POST /auth/register  ->  201 sem corpo
     cadastrar: (nome, email, senha) =>
-        apiRequest("/auth/register", { method: "POST", body: { nome, email, senha } }),
+        apiRequest("/auth/register", {
+            method: "POST",
+            body: { nome, email, senha, role: "USER" },
+        }),
 
-    // GET /jogos (público)  ->  lista de jogos
     listarJogos: () => apiRequest("/jogos"),
 
-    // GET /ofertas/{jogoId}/comparacao (exige login)  ->  ofertas do jogo, da mais barata para a mais cara
+    buscarJogoPorId: (id) => apiRequest(`/jogos/${id}`),
+
     compararOfertas: (jogoId) =>
         apiRequest(`/ofertas/${jogoId}/comparacao`, { autenticado: true }),
+
+    logout: () => {
+        limparSessao();
+        window.location.href = "/login.html";
+    }
 };

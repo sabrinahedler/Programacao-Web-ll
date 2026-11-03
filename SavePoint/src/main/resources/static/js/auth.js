@@ -75,12 +75,21 @@ document.addEventListener("DOMContentLoaded", () => {
         form.setAttribute("aria-busy", String(isLoading));
     }
 
-    async function entrarERedirecionar(email, senha) {
+async function entrarERedirecionar(email, senha) {
+    try {
         const resposta = await SavePointApi.login(email, senha);
+        const token = (resposta && resposta.token) ? resposta.token : resposta;
 
-        salvarSessao(resposta);
-        window.location.replace("index.html");
+        if (token) {
+            salvarToken(token);
+            window.location.replace("index.html");
+        } else {
+            alert("Erro ao obter o token de acesso.");
+        }
+    } catch (erro) {
+        alert(erro.message || "E-mail ou senha incorretos.");
     }
+}
 
     loginPanel.addEventListener("submit", async (event) => {
         event.preventDefault();

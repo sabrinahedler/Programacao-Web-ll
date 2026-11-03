@@ -21,6 +21,7 @@ public class Usuario implements UserDetails {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRoles role;
 
     private String nome;
@@ -32,8 +33,13 @@ public class Usuario implements UserDetails {
     private String senha;
 
     private String telefone;
+
+    @Column(nullable = false)
     private LocalDateTime dataCadastro = LocalDateTime.now();
+
     private LocalDateTime ultimoAcesso;
+
+    @Column(nullable = false)
     private Boolean ativo = true;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -67,7 +73,7 @@ public class Usuario implements UserDetails {
         this.telefone = telefone;
         this.dataCadastro = dataCadastro;
         this.ultimoAcesso = ultimoAcesso;
-        this.ativo = ativo;
+        this.ativo = true;
         this.listaDesejos = listaDesejos;
         this.avaliacoes = avaliacoes;
     }

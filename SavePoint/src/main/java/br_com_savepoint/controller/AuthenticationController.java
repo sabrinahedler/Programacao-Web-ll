@@ -13,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("auth")
 public class AuthenticationController {
@@ -63,16 +65,19 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody @Valid RegisterDTO data) {
-        if(this.repository.findByEmail(data.email()).isPresent()) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<?> register(@RequestBody @Valid RegisterDTO data) {
+        if (this.repository.existsByEmail(data.email())) {
+            return ResponseEntity.badRequest().body("E-mail já cadastrado.");
         }
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.senha());
-        Usuario newUsuario = new Usuario(data.nome(), data.email(), encryptedPassword, data.role());
+        UserRoles userRole = data.role() != null ? data.role() : UserRoles.USER;
+
+        Usuario newUsuario = new Usuario(data.nome(), data.email(), encryptedPassword, userRole);
+        newUsuario.setAtivo(true);
+        newUsuario.setDataCadastro(LocalDateTime.now());
 
         this.repository.save(newUsuario);
-
         return ResponseEntity.ok().build();
     }
 
