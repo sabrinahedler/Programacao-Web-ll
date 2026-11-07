@@ -2,39 +2,32 @@ package br_com_savepoint.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "tb_usuario")
-@JsonIgnoreProperties(value = {"password", "username", "authorities", "accountNonExpired", "accountNonLocked",
-        "credentialsNonExpired", "enabled", "hibernateLazyInitializer", "handler"})
 public class Usuario implements UserDetails {
 
     @Id
-    @EqualsAndHashCode.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserRoles role = UserRoles.USER;
+    private UserRoles role;
 
     private String nome;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @JsonIgnore
     private String senha;
     private String telefone;
     private LocalDateTime dataCadastro = LocalDateTime.now();
@@ -50,7 +43,6 @@ public class Usuario implements UserDetails {
     private List<AvaliacaoUsuario> avaliacoes;
 
     public Usuario() {
-        this.role = UserRoles.USER;
         this.ativo = true;
         this.dataCadastro = LocalDateTime.now();
     }

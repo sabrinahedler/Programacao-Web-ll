@@ -5,57 +5,48 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
-/** Gera e valida os tokens JWT usados na autenticação stateless. */
 @Service
 public class TokenService {
-
-    private static final String ISSUER = "savepoint-api";
 
     @Value("${api.security.token.secret}")
     private String secret;
 
-    @Value("${api.security.token.expiration-hours:2}")
-    private long expirationHours;
-
-    public String generateToken(Usuario usuario) {
+    public String generateToken (Usuario usuario) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT.create()
-                    .withIssuer(ISSUER)
+            String token = JWT.create()
+                    .withIssuer("auth-api")
                     .withSubject(usuario.getEmail())
-                    .withClaim("role", usuario.getRole() != null ? usuario.getRole().name() : null)
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
-        } catch (JWTCreationException exception) {
-            throw new IllegalStateException("Erro ao gerar o token JWT.", exception);
+            return token;
+        } catch (JWTCreationException exception){
+            throw new RuntimeException("Erro enquanto gerava o token");
         }
     }
 
-    /** Retorna o e-mail (subject) do token, ou null se o token for inválido ou estiver expirado. */
     public String validateToken(String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.require(algorithm)
-                    .withIssuer(ISSUER)
+                    .withIssuer("auth-api")
                     .build()
                     .verify(token)
                     .getSubject();
         } catch (JWTVerificationException exception) {
-            return null;
+            return "";
         }
     }
 
-    public long getExpirationSeconds() {
-        return expirationHours * 3600;
+    private Instant generateExpirationDate() {
+        return LocalDateTime.now().plusMinutes(5).toInstant(ZoneOffset.of("-03:00"));
     }
 
-    private Instant generateExpirationDate() {
-        return Instant.now().plus(expirationHours, ChronoUnit.HOURS);
-    }
 }

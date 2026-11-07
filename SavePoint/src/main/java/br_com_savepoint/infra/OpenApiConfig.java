@@ -9,9 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 /** Habilita o botão "Authorize" no Swagger UI para testar as rotas protegidas com o token JWT. */
 @Configuration
-@OpenAPIDefinition(
-        info = @Info(title = "SavePoint API", version = "1.0", description = "API do projeto SavePoint"),
-        security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
+
 public class OpenApiConfig {
+
 }
