@@ -1,9 +1,11 @@
 package br_com_savepoint.controller;
 
+import br_com_savepoint.model.UserRoles;
 import br_com_savepoint.model.Usuario;
 import br_com_savepoint.service.ListaDesejosService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +41,13 @@ public class ListaDesejosController {
 
     @PostMapping("/usuarios/{id}/lista-desejos/")
     public ResponseEntity<br_com_savepoint.model.ListaDesejos> criarLista(
-            @PathVariable("id") Long id) {
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal Usuario logado) {
+
+        // Devolve a lista do usuário (criando se ainda não existir), já com os jogos dentro.
+        if (!podeAcessar(logado, id)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         try {
             br_com_savepoint.model.ListaDesejos lista =
@@ -54,7 +62,12 @@ public class ListaDesejosController {
     @DeleteMapping("/usuarios/{usuarioId}/lista-desejos/{listaId}")
     public ResponseEntity<Void> deletarLista(
             @PathVariable("usuarioId") Long usuarioId,
-            @PathVariable("listaId") Long listaId) {
+            @PathVariable("listaId") Long listaId,
+            @AuthenticationPrincipal Usuario logado) {
+
+        if (!podeAcessar(logado, usuarioId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         boolean deletada =
                 listaDesejosService.deletarLista(usuarioId, listaId);
@@ -64,5 +77,10 @@ public class ListaDesejosController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    private boolean podeAcessar(Usuario logado, Long usuarioId) {
+        return logado != null
+                && (logado.getRole() == UserRoles.ADMIN || logado.getId().equals(usuarioId));
     }
 }

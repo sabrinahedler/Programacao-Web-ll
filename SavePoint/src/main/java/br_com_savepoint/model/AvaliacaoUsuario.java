@@ -3,6 +3,7 @@ package br_com_savepoint.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Data
 @Entity
@@ -24,8 +25,11 @@ public class AvaliacaoUsuario {
     private Integer horasJogadas = 0;
     private Boolean indiceRecomendacao;
 
+    // lista de avaliações pública, do autor só saem id, nome e foto
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
+    @JsonIgnoreProperties({"email", "telefone", "role", "dataCadastro", "ultimoAcesso", "ativo",
+            "username", "authorities", "enabled", "credentialsNonExpired", "accountNonExpired", "accountNonLocked"})
     private Usuario usuario;
 
     @ManyToOne

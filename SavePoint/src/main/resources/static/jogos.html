@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <meta name="description" content="Todos os jogos do SavePoint com o menor preço entre as lojas.">
+  <title>Jogos | SavePoint</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js" defer></script>
+  <script src="/js/api.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/jogos.js" defer></script>
+</head>
+<body data-pagina="jogos">
+  <div id="cabecalho"></div>
+
+  <main class="section pagina">
+    <nav class="breadcrumb" aria-label="Você está em"><a href="index.html">Início</a> <span>›</span> Todos os jogos</nav>
+    <div class="pagina-titulo">
+      <h1>Todos os jogos</h1>
+      <p class="pagina-subtitulo" id="contador-resultados" aria-live="polite">Carregando...</p>
+    </div>
+
+    <div class="catalogo">
+      <aside class="filtros" aria-label="Filtros">
+        <details open>
+          <summary>Filtros</summary>
+
+          <div class="filtro-bloco">
+            <label for="filtro-busca">Buscar pelo nome</label>
+            <input id="filtro-busca" type="search" placeholder="Ex.: Elden Ring" autocomplete="off">
+          </div>
+
+          <div class="filtro-bloco">
+            <label for="filtro-ordem">Ordenar por</label>
+            <select id="filtro-ordem">
+              <option value="relevancia">Relevância</option>
+              <option value="desconto">Maior desconto</option>
+              <option value="preco">Menor preço</option>
+              <option value="preco-desc">Maior preço</option>
+              <option value="lancamento">Lançamento mais recente</option>
+              <option value="nome">Nome (A–Z)</option>
+            </select>
+          </div>
+
+          <div class="filtro-bloco">
+            <label class="campo-check"><input id="filtro-promo" type="checkbox"> <span>Somente em promoção</span></label>
+          </div>
+
+          <div class="filtro-bloco">
+            <label for="filtro-preco">Preço máximo</label>
+            <select id="filtro-preco">
+              <option value="">Qualquer preço</option>
+              <option value="20">Até R$ 20</option>
+              <option value="50">Até R$ 50</option>
+              <option value="100">Até R$ 100</option>
+              <option value="200">Até R$ 200</option>
+            </select>
+          </div>
+
+          <fieldset class="filtro-bloco">
+            <legend>Gêneros</legend>
+            <div id="filtro-generos" class="lista-checks"><p class="demo-notice">Carregando...</p></div>
+          </fieldset>
+
+          <button class="botao-secundario largura-total" id="limpar-filtros" type="button">Limpar filtros</button>
+        </details>
+      </aside>
+
+      <section class="resultados" aria-label="Resultados">
+        <div class="lista-linhas" id="lista-jogos" aria-busy="true"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="rodape"></div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="theme-color" content="#101014">
     <meta
         name="description"
         content="Entre ou crie sua conta no SavePoint para acompanhar seus jogos favoritos."
@@ -12,30 +12,19 @@
 
     <title>Entrar | SavePoint</title>
 
-    <link rel="stylesheet" href="../../../../css/style.css">
+    <link rel="icon" type="image/png" href="/assets/favicon.png">
+    <link rel="stylesheet" href="/css/style.css">
 
-    <!-- integrando a api no html-->
-    <script src="../../../../js/api.js" defer></script>
-
-    <script src="../../../../js/auth.js" defer></script>
+    <script src="/js/api.js" defer></script>
+    <script src="/js/auth.js" defer></script>
 </head>
 
 <body class="auth-page">
 
-    <header class="site-header auth-header">
-
-        <a class="brand" href="index.html" aria-label="SavePoint - Página inicial">
-            <img
-                src="../../../../assets/logo.png"
-                alt="SavePoint"
-                class="brand-logo"
-            >
-        </a>
-
+    <header class="auth-header">
         <a class="auth-back-link" href="index.html">
             ← Voltar ao início
         </a>
-
     </header>
 
     <main class="auth-main">
@@ -43,7 +32,7 @@
         <section class="auth-card" aria-labelledby="auth-title">
 
             <a href="index.html" class="auth-logo">
-                <img src="../../../../assets/logo.png" alt="SavePoint">
+                <img src="/assets/logo-recortada.png" alt="SavePoint">
             </a>
 
             <p class="auth-eyebrow">SUA JORNADA COMEÇA AQUI</p>
@@ -54,55 +43,42 @@
                 Entre na sua conta e continue acompanhando suas ofertas.
             </p>
 
-            <div class="auth-tabs" role="tablist" aria-label="Autenticação">
+            <!-- Aviso quando a pessoa chega aqui tentando abrir a wishlist, o perfil ou avaliar -->
+            <p class="auth-aviso" id="auth-aviso" role="alert" hidden></p>
 
-                <button
-                    type="button"
-                    class="auth-tab active"
-                    id="login-tab"
-                    role="tab"
-                    aria-selected="true"
-                    aria-controls="login-panel"
-                >
+            <div class="auth-tabs" role="tablist" aria-label="Autenticação">
+                <button type="button" class="auth-tab active" id="login-tab" role="tab" aria-selected="true" aria-controls="login-panel">
                     Entrar
                 </button>
-
-                <button
-                    type="button"
-                    class="auth-tab"
-                    id="register-tab"
-                    role="tab"
-                    aria-selected="false"
-                    aria-controls="register-panel"
-                >
+                <button type="button" class="auth-tab" id="register-tab" role="tab" aria-selected="false" aria-controls="register-panel">
                     Criar conta
                 </button>
-
             </div>
 
 <!-- FORMULÁRIO DE LOGIN -->
 
             <form id="login-panel" class="auth-form" novalidate>
 
+                <fieldset class="auth-modo">
+                    <legend>Entrar com</legend>
+                    <label><input type="radio" name="modo-login" value="email" checked> <span>E-mail</span></label>
+                    <label><input type="radio" name="modo-login" value="nickname"> <span>Nickname</span></label>
+                </fieldset>
+
                 <div class="auth-field">
-
-                    <label for="login-email">E-mail</label>
-
+                    <label for="login-identificador" id="rotulo-identificador">E-mail</label>
                     <input
                         type="email"
-                        id="login-email"
-                        name="email"
+                        id="login-identificador"
+                        name="login"
                         placeholder="voce@exemplo.com"
                         autocomplete="email"
                         required
                     >
-
                 </div>
 
                 <div class="auth-field">
-
                     <label for="login-password">Senha</label>
-
                     <input
                         type="password"
                         id="login-password"
@@ -111,7 +87,6 @@
                         autocomplete="current-password"
                         required
                     >
-
                 </div>
 
                 <button type="submit" class="auth-submit">
@@ -120,27 +95,17 @@
 
                 <p class="auth-switch">
                     Ainda não tem uma conta?
-
-                    <button type="button" data-switch="register">
-                        Criar conta
-                    </button>
+                    <button type="button" data-switch="register">Criar conta</button>
                 </p>
 
             </form>
 
 <!--FORMULÁRIO DE CADASTRO-->
 
-            <form
-                id="register-panel"
-                class="auth-form"
-                hidden
-                novalidate
-            >
+            <form id="register-panel" class="auth-form" hidden novalidate>
 
                 <div class="auth-field">
-
-                    <label for="register-username">Username</label>
-
+                    <label for="register-username">Nickname</label>
                     <input
                         type="text"
                         id="register-username"
@@ -149,17 +114,17 @@
                         autocomplete="username"
                         minlength="3"
                         maxlength="30"
+                        spellcheck="false"
+                        aria-describedby="nick-status nick-regra"
                         required
                     >
-
-                    <small>Escolha um nome entre 3 a 30 caracteres.</small>
-
+                    <small id="nick-regra">De 3 a 30 caracteres: letras, números, ponto, hífen ou underline. Sem espaços.</small>
+                    <p class="nick-status" id="nick-status" aria-live="polite"></p>
+                    <div class="nick-sugestoes" id="nick-sugestoes" hidden></div>
                 </div>
 
                 <div class="auth-field">
-
                     <label for="register-email">E-mail</label>
-
                     <input
                         type="email"
                         id="register-email"
@@ -168,13 +133,10 @@
                         autocomplete="email"
                         required
                     >
-
                 </div>
 
                 <div class="auth-field">
-
                     <label for="register-password">Senha</label>
-
                     <input
                         type="password"
                         id="register-password"
@@ -185,17 +147,11 @@
                         maxlength="72"
                         required
                     >
-
                     <small>Utilize pelo menos 8 caracteres.</small>
-
                 </div>
 
                 <div class="auth-field">
-
-                    <label for="register-confirm-password">
-                        Confirme sua senha
-                    </label>
-
+                    <label for="register-confirm-password">Confirme sua senha</label>
                     <input
                         type="password"
                         id="register-confirm-password"
@@ -206,7 +162,6 @@
                         maxlength="72"
                         required
                     >
-
                 </div>
 
                 <button type="submit" class="auth-submit">
@@ -215,21 +170,12 @@
 
                 <p class="auth-switch">
                     Já tem uma conta?
-
-                    <button type="button" data-switch="login">
-                        Entrar
-                    </button>
+                    <button type="button" data-switch="login">Entrar</button>
                 </p>
 
             </form>
 
-            <p
-                class="auth-feedback"
-                id="auth-feedback"
-                role="status"
-                aria-live="polite"
-                hidden
-            ></p>
+            <p class="auth-feedback" id="auth-feedback" role="status" aria-live="polite" hidden></p>
 
             <p class="auth-terms">
                 Ao continuar, você concorda com os termos de uso

@@ -5,6 +5,8 @@ import br_com_savepoint.service.AvaliacaoUsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import br_com_savepoint.model.Usuario;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -42,7 +44,12 @@ public class AvaliacaoUsuarioController {
     }
 
     @PostMapping("/avaliacoes")
-    public ResponseEntity<?> criar(@PathVariable Long jogoId, @RequestBody AvaliacaoUsuario avaliacao) {
+    public ResponseEntity<?> criar(@PathVariable Long jogoId, @RequestBody AvaliacaoUsuario avaliacao,
+                                   @AuthenticationPrincipal Usuario logado) {
+        if (logado == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Entre na sua conta para avaliar.");
+        }
+        avaliacao.setUsuario(logado);
         try {
             AvaliacaoUsuario novaAvaliacao = avaliacaoServico.salvar(jogoId, avaliacao);
             return ResponseEntity.status(HttpStatus.CREATED).body(novaAvaliacao);

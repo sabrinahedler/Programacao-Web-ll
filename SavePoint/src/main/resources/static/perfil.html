@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <meta name="description" content="Seu perfil no SavePoint.">
+  <title>Meu perfil | SavePoint</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js" defer></script>
+  <script src="/js/api.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/perfil.js" defer></script>
+</head>
+<body data-pagina="perfil">
+  <div id="cabecalho"></div>
+
+  <main class="section pagina">
+    <nav class="breadcrumb" aria-label="Você está em"><a href="index.html">Início</a> <span>›</span> Meu perfil</nav>
+
+    <section class="perfil" id="perfil" aria-busy="true">
+      <div class="skeleton skeleton-perfil" aria-hidden="true"></div>
+    </section>
+  </main>
+
+  <dialog class="janela janela-larga" id="janela-avatar">
+    <div class="janela-conteudo">
+      <button class="janela-fechar icon-button" type="button" data-fechar aria-label="Fechar">✕</button>
+      <p class="section-kicker">FOTO DE PERFIL</p>
+      <h2>Escolha sua foto</h2>
+      <div class="galeria-avatares" id="galeria-avatares" role="radiogroup" aria-label="Fotos disponíveis"></div>
+      <p class="janela-erro" hidden></p>
+      <div class="janela-acoes">
+        <button class="botao-secundario" type="button" data-fechar>Cancelar</button>
+        <button class="botao-primario" type="button" id="salvar-avatar">Salvar foto</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div id="rodape"></div>
+</body>
+</html>

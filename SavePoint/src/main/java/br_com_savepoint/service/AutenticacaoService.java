@@ -1,7 +1,6 @@
 package br_com_savepoint.service;
 
 import br_com_savepoint.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,8 +15,15 @@ public class AutenticacaoService implements UserDetailsService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    // usuário pode entrar com o e-mail ou com o nickname
+    // primeiro procura por email, se não achar, procura pelo nome
+
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        String valor = login == null ? "" : login.trim();
+
+        return usuarioRepository.findByEmail(valor)
+                .or(() -> usuarioRepository.findByNomeIgnoreCase(valor))
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + valor));
     }
 }

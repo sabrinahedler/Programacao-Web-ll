@@ -7,6 +7,7 @@ import br_com_savepoint.repository.ItemListaDesejosRepository;
 import br_com_savepoint.repository.JogoRepository;
 import br_com_savepoint.repository.ListaDesejosRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -112,5 +113,28 @@ public class ItemListaDesejosService {
         itemExistente.setNotificarOferta(itemDados.isNotificarOferta());
 
         return Optional.of(itemListaDesejosRepository.save(itemExistente));
+    }
+
+    // DELETE /usuarios/{id}/lista-desejos/itens/{itemId}
+    @Transactional
+    public boolean removerItem(Long usuarioId, Long itemId) {
+        Optional<ListaDesejos> listaOptional =
+                listaDesejosRepository.findByUsuarioId(usuarioId);
+
+        if (listaOptional.isEmpty()) {
+            return false;
+        }
+
+        ListaDesejos lista = listaOptional.get();
+
+        // remove pelo id (sem equals/hashCode do Lombok)
+        // como a lista tem orphanRemoval = true, o item sai do banco ao salvar
+        boolean removido = lista.getJogos().removeIf(item -> item.getId().equals(itemId));
+
+        if (removido) {
+            listaDesejosRepository.save(lista);
+        }
+
+        return removido;
     }
 }

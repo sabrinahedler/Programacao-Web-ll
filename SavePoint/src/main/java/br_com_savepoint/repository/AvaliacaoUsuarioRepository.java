@@ -21,6 +21,9 @@ public interface AvaliacaoUsuarioRepository extends JpaRepository<AvaliacaoUsuar
 
     long countByJogoId(Long jogoId);
 
+    // impede que o mesmo usuário avalie o mesmo jogo duas vezes
+    boolean existsByUsuarioIdAndJogoId(Long usuarioId, Long jogoId);
+
     @Query("SELECT AVG(a.nota) FROM AvaliacaoUsuario a WHERE a.jogo.id = :jogoId")
     Double calcularMediaJogo(@Param("jogoId") Long jogoId);
 

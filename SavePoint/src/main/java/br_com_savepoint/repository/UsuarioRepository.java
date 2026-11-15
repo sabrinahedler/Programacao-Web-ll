@@ -14,6 +14,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     boolean existsByEmail(String email);
 
+    // login com nickname e nickname único
+    Optional<Usuario> findByNomeIgnoreCase(String nome);
+
+    boolean existsByNomeIgnoreCase(String nome);
+
     List<Usuario> findByAtivoTrue();
 
     List<Usuario> findByAtivoFalse();

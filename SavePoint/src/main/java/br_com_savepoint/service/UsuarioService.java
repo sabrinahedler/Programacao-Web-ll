@@ -71,23 +71,28 @@ public class UsuarioService {
     }
 
     public Usuario atualizar(Long id, Usuario usuarioAtualizado) throws Exception {
-        Usuario usuario = usuarioRepository.findById(id).orElse(null);
-        if (usuario == null) {
-            throw new Exception("Usuário não encontrado com ID: " + id);
-        }
-        if (usuarioAtualizado.getNome() != null && !usuarioAtualizado.getNome().trim().isEmpty()) {
-            usuario.setNome(usuarioAtualizado.getNome());
-        }
-        if (usuarioAtualizado.getEmail() != null && !usuarioAtualizado.getEmail().trim().isEmpty()) {
 
-            Usuario outroUsuario = usuarioRepository.findByEmail(usuarioAtualizado.getEmail()).orElse(null);
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuarioAtualizado.getNome() != null && !usuarioAtualizado.getNome().trim().isEmpty()) {
+            String novoNome = usuarioAtualizado.getNome().trim();
+            Usuario outroUsuario = usuarioRepository.findByNomeIgnoreCase(novoNome).orElse(null);
             if (outroUsuario != null && !outroUsuario.getId().equals(id)) {
-                throw new Exception("Email já cadastrado por outro usuário");
+                throw new Exception("Este nickname já está em uso.");
             }
-            usuario.setEmail(usuarioAtualizado.getEmail());
+            usuario.setNome(novoNome);
         }
         if (usuarioAtualizado.getTelefone() != null) {
             usuario.setTelefone(usuarioAtualizado.getTelefone());
+        }
+
+        // foto de perfil só aceita imagens da galeria do próprio site
+        if (usuarioAtualizado.getFotoPerfil() != null) {
+            String foto = usuarioAtualizado.getFotoPerfil().trim();
+            if (!foto.isEmpty() && !foto.matches("/assets/avatares/[A-Za-z0-9_-]+\\.(png|jpg|jpeg|webp|svg)")) {
+                throw new Exception("Foto de perfil inválida.");
+            }
+            usuario.setFotoPerfil(foto.isEmpty() ? null : foto);
         }
 
         return usuarioRepository.save(usuario);

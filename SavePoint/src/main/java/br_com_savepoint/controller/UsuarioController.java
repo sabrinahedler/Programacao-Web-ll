@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import br_com_savepoint.model.UserRoles;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import java.util.List;
 
@@ -41,6 +43,18 @@ public class UsuarioController {
         return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<Usuario> meusDados(@AuthenticationPrincipal Usuario logado) {
+        if (logado == null) {
+            return new ResponseEntity<Usuario>(HttpStatus.UNAUTHORIZED);
+        }
+        Usuario usuario = usuarioService.buscarPorId(logado.getId());
+        if (usuario == null) {
+            return new ResponseEntity<Usuario>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Usuario>(usuario, HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> buscarPorId(@PathVariable Long id, @AuthenticationPrincipal Usuario logado) {
         if (!podeAcessar(logado, id)) {
@@ -63,15 +77,18 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario, @AuthenticationPrincipal Usuario logado) {
-        if (!podeAcessar(logado, id)) {
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario,
+                                       @AuthenticationPrincipal Usuario logado) {
+
+        // cada usuário só altera o próprio cadastro, ADMIN altera qualquer um
+        if (logado == null || (logado.getRole() != UserRoles.ADMIN && !logado.getId().equals(id))) {
             return new ResponseEntity<String>("Acesso negado.", HttpStatus.FORBIDDEN);
         }
         try {
             Usuario usuarioAtualizado = usuarioService.atualizar(id, usuario);
             return new ResponseEntity<Usuario>(usuarioAtualizado, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 

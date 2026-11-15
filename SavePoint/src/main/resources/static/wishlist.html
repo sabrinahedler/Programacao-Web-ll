@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <meta name="description" content="Sua lista de desejos no SavePoint.">
+  <title>Lista de desejos | SavePoint</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <script src="/js/config.js" defer></script>
+  <script src="/js/api.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/wishlist.js" defer></script>
+</head>
+<body data-pagina="wishlist">
+  <div id="cabecalho"></div>
+
+  <main class="section pagina">
+    <nav class="breadcrumb" aria-label="Você está em"><a href="index.html">Início</a> <span>›</span> Lista de desejos</nav>
+    <div class="pagina-titulo">
+      <h1 id="titulo-wishlist">Lista de desejos</h1>
+      <p class="pagina-subtitulo" id="contador-wishlist" aria-live="polite">Carregando...</p>
+    </div>
+
+    <div class="barra-ferramentas" id="ferramentas-wishlist" hidden>
+      <div class="campo-busca-local">
+        <label class="sr-only" for="busca-wishlist">Buscar na lista</label>
+        <input id="busca-wishlist" type="search" placeholder="Buscar na sua lista..." autocomplete="off">
+      </div>
+      <label class="rotulo-select">Ordenar por
+        <select id="ordem-wishlist">
+          <option value="recentes">Adicionados por último</option>
+          <option value="desconto">Maior desconto</option>
+          <option value="preco">Menor preço</option>
+          <option value="nome">Nome (A–Z)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="lista-wishlist" id="lista-wishlist" aria-busy="true"></div>
+  </main>
+
+  <div id="rodape"></div>
+</body>
+</html>

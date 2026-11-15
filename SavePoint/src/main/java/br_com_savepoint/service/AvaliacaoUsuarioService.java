@@ -54,7 +54,11 @@ public class AvaliacaoUsuarioService {
 
         Usuario usuario = usuarioRepositorio.findById(avaliacao.getUsuario().getId()).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado com ID: " + avaliacao.getUsuario().getId()));
 
-        if (avaliacao.getNota() < 1 || avaliacao.getNota() > 5) {
+        if (avaliacaoRepositorio.existsByUsuarioIdAndJogoId(usuario.getId(), jogoId)) {
+            throw new IllegalArgumentException("Você já avaliou este jogo.");
+        }
+
+        if (avaliacao.getNota() == null || avaliacao.getNota() < 1 || avaliacao.getNota() > 5) {
             throw new IllegalArgumentException("Nota deve ser entre 1 e 5");
         }
 

@@ -30,6 +30,10 @@ public class Usuario implements UserDetails {
 
     private String senha;
     private String telefone;
+
+    // caminho da foto escolhida na galeria do site (ex.: /assets/avatares/avatar-01.png), nulo = foto padrão.
+    private String fotoPerfil;
+
     private LocalDateTime dataCadastro = LocalDateTime.now();
     private LocalDateTime ultimoAcesso;
     private Boolean ativo = true;

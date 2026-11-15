@@ -6,6 +6,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 @Entity
@@ -30,6 +31,7 @@ public class ResumoAvaliacao {
     private LocalDate dataGeracao;
 
     @OneToOne(mappedBy = "resumoAvaliacao")
+    @JsonIgnore
     private Jogo jogo;
 
     public ResumoAvaliacao() {
