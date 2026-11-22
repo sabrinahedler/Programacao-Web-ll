@@ -170,7 +170,7 @@ function montarCabecalho() {
         <a href="index.html"${ativo("inicio")}>Início</a>
         <a href="jogos.html"${ativo("jogos")}>Jogos</a>
         <a href="wishlist.html" data-protegido="wishlist"${ativo("wishlist")}>Wishlist</a>
-        <a href="index.html#sobre">Sobre</a>
+        <a href="sobre.html"${ativo("sobre")}>Sobre</a>
       </nav>
       <form class="header-search" action="jogos.html" method="get" role="search">
         <label class="sr-only" for="busca-topo">Procurar jogos</label>
@@ -249,7 +249,7 @@ function montarRodape() {
           <a href="index.html">Início</a>
           <a href="jogos.html">Jogos</a>
           <a href="wishlist.html" data-protegido="wishlist">Wishlist</a>
-          <a href="index.html#sobre">Sobre</a>
+        <a href="sobre.html">Sobre</a>
         </nav>
       </div>
       <div class="footer-bottom">

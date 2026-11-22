@@ -65,7 +65,10 @@ function htmlPaginaJogo() {
       ${primeiroGenero ? `<a href="jogos.html?genero=${encodeURIComponent(primeiroGenero)}">${escaparHtml(primeiroGenero)}</a> <span>›</span>` : ""}
       ${escaparHtml(jogo.titulo)}
     </nav>
-    <h1 class="jogo-titulo">${escaparHtml(jogo.titulo)}</h1>
+    <div class="jogo-cabecalho">
+  <h1 class="jogo-titulo">${escaparHtml(jogo.titulo)}</h1>
+  <div class="jogo-acoes" id="acoes-wishlist"></div>
+</div>
 
     <div class="jogo-topo">
       <div class="jogo-midia">${htmlCapa(jogo, "capa-grande")}</div>
@@ -83,7 +86,6 @@ function htmlPaginaJogo() {
       </aside>
     </div>
 
-    <div class="jogo-acoes" id="acoes-wishlist"></div>
 
     <section class="bloco" id="onde-comprar" aria-labelledby="titulo-comprar">
       <h2 id="titulo-comprar">Onde comprar ${escaparHtml(jogo.titulo)}</h2>
@@ -138,20 +140,27 @@ function htmlRequisitos(req) {
     </dl>`;
 }
 
+
 // onde comprar
 function htmlOfertas() {
   if (!ofertasAtuais.length) {
     return `<p class="estado-vazio">Nenhuma loja com oferta cadastrada para este jogo ainda.</p>`;
   }
 
+  // Ordena as ofertas da mais barata para a mais cara.
+  const ofertasOrdenadas = [...ofertasAtuais].sort(
+    (a, b) => Number(a.precoAtual) - Number(b.precoAtual)
+  );
+
   return `
     <div class="lista-ofertas">
-      ${ofertasAtuais
+      ${ofertasOrdenadas
         .map((oferta, indice) => {
           const loja = oferta.loja || {};
           const nome = loja.nome || "Loja";
           const link = urlExternaSegura(loja.urlLoja);
           const logo = urlExternaSegura(loja.urlLogo);
+
           return `
             <div class="oferta${indice === 0 ? " melhor" : ""}">
               <div class="oferta-loja">
@@ -161,7 +170,9 @@ function htmlOfertas() {
                   ${indice === 0 ? `<span class="selo-melhor">Menor preço</span>` : ""}
                 </div>
               </div>
+
               <div class="oferta-preco">${htmlPreco(oferta)}</div>
+
               ${link
                 ? `<a class="botao-loja" href="${escaparHtml(link)}" target="_blank" rel="noopener noreferrer">Ir para a loja ${ICONES.externo}<span class="sr-only"> (abre em nova aba)</span></a>`
                 : `<span class="botao-loja desabilitado">Link indisponível</span>`}
@@ -169,6 +180,7 @@ function htmlOfertas() {
         })
         .join("")}
     </div>
+
     <p class="demo-notice">A compra é feita no site da loja. Preços podem mudar sem aviso.</p>`;
 }
 
