@@ -20,7 +20,7 @@ public class EmailService {
 
         try {
             SimpleMailMessage mensagem = new SimpleMailMessage();
-            mensagem.setFrom("alerta@savepoint.com");
+            mensagem.setFrom("ikauafelipe@gmail.com");
             mensagem.setTo(destinatario);
             mensagem.setSubject("🔥 Oferta SavePoint: " + nomeJogo + " em promoção!");
             mensagem.setText("Olá!\n\nO jogo " + nomeJogo + " da sua Lista de Desejos entrou em promoção por apenas R$ " + precoAtual + "!\n\nAproveite no SavePoint e compre antes que a promoção acabe, patrão!");

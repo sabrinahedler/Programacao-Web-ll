@@ -156,14 +156,18 @@ function renderizarDescontos() {
   }
 
   area.innerHTML = lista
-    .map(({ jogo, melhorOferta }) => `
-      <a class="discount-row" href="jogo.html?id=${jogo.id}">
-        ${htmlCapa(jogo, "mini-cover")}
-        <div class="row-game"><strong>${escaparHtml(jogo.titulo)}</strong><small>${escaparHtml(listaGeneros(jogo.genero).join(" · "))}</small></div>
-        <span class="discount">-${Math.round(melhorOferta.percentualDesconto)}%</span>
-        <div class="row-price"><strong>${formatarPreco(melhorOferta.precoAtual)}</strong><del>${formatarPreco(melhorOferta.precoOriginal)}</del></div>
-      </a>`)
-    .join("");
+      .map(({ jogo, melhorOferta }) => {
+        const nomeLoja = melhorOferta?.loja?.nome || "Steam";
+        return `
+        <a class="discount-row" href="jogo.html?id=${jogo.id}">
+          ${htmlCapa(jogo, "mini-cover")}
+          <div class="row-game"><strong>${escaparHtml(jogo.titulo)}</strong><small>${escaparHtml(listaGeneros(jogo.genero).join(" · "))}</small></div>
+          <span class="discount">-${Math.round(melhorOferta.percentualDesconto)}%</span>
+          <div class="row-price"><strong>${formatarPreco(melhorOferta.precoAtual)}</strong><del>${formatarPreco(melhorOferta.precoOriginal)}</del></div>
+          <span class="row-store">${escaparHtml(nomeLoja)}</span>
+        </a>`;
+      })
+  .join("");
 }
 
 // explorar

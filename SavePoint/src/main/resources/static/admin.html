@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101014">
+  <title>Painel Administrativo | SavePoint</title>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <script src="/js/config.js" defer></script>
+  <script src="/js/api.js" defer></script>
+  <script src="/js/ui.js" defer></script>
+  <script src="/js/admin.js" defer></script>
+</head>
+<body data-pagina="admin" class="admin-protegido">
+<div id="cabecalho"></div>
+
+<div id="bloqueio-acesso" class="painel-bloqueio" hidden>
+  <div class="panel estado-negado">
+    <span class="icone-alerta">⛔</span>
+    <h2>Acesso Restrito</h2>
+    <p>Esta área é exclusiva para Administradores do SavePoint.</p>
+    <p class="sub-redirecionando">Você será redirecionado para a página inicial em instantes...</p>
+    <a href="index.html" class="botao-primario">Voltar ao Início</a>
+  </div>
+</div>
+
+<main class="section pagina admin-container" id="conteudo-admin">
+  <nav class="breadcrumb" aria-label="Você está em">
+    <a href="index.html">Início</a> <span>›</span> Painel Administrativo
+  </nav>
+
+  <div class="pagina-titulo">
+    <h1>Painel de Controle</h1>
+    <p class="pagina-subtitulo">Painel de Administrador do Sistema</p>
+  </div>
+
+  <div class="abas" role="tablist">
+    <button class="aba ativa" data-tab="jogos" type="button">Jogos</button>
+    <button class="aba" data-tab="lojas" type="button">Lojas</button>
+    <button class="aba" data-tab="ofertas" type="button">Ofertas</button>
+    <button class="aba" data-tab="usuarios" type="button">Usuários & Admins</button>
+  </div>
+
+  <div id="admin-alerta" class="admin-mensagem" hidden></div>
+
+  <section id="tab-jogos" class="tab-painel ativo">
+    <div class="admin-grid-layout">
+      <div class="panel form-panel">
+        <h3>Cadastrar Novo Jogo</h3>
+        <form id="form-cadastrar-jogo">
+          <div class="campo">
+            <label for="jogo-titulo">Título *</label>
+            <input type="text" id="jogo-titulo" required placeholder="Ex.: Cyberpunk 2077">
+          </div>
+
+          <div class="campo">
+            <label for="jogo-genero">Gênero *</label>
+            <input type="text" id="jogo-genero" required placeholder="Ex.: RPG, Ação">
+          </div>
+
+          <div class="duas-colunas">
+            <div class="campo">
+              <label for="jogo-lancamento">Data de Lançamento *</label>
+              <input type="date" id="jogo-lancamento" required>
+            </div>
+
+            <div class="campo">
+              <label for="jogo-classificacao">Classificação Indicativa *</label>
+              <select id="jogo-classificacao" required>
+                <option value="Livre">Livre</option>
+                <option value="10+">10+</option>
+                <option value="12+">12+</option>
+                <option value="14+">14+</option>
+                <option value="16+">16+</option>
+                <option value="18+">18+</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="jogo-desenvolvedora">Desenvolvedora *</label>
+            <input type="text" id="jogo-desenvolvedora" required placeholder="Ex.: CD Projekt Red">
+          </div>
+
+          <div class="campo">
+            <label for="jogo-capa">URL da Capa</label>
+            <input type="url" id="jogo-capa" placeholder="https://exemplo.com/imagem.jpg">
+          </div>
+
+          <div class="campo">
+            <label for="jogo-descricao">Descrição *</label>
+            <textarea id="jogo-descricao" rows="3" required placeholder="Sinopse do jogo"></textarea>
+          </div>
+
+          <fieldset class="admin-fieldset">
+            <legend>Requisitos Mínimos (opcional)</legend>
+
+            <div class="campo">
+              <label for="req-so">Sistema Operacional</label>
+              <input type="text" id="req-so" placeholder="Ex.: Windows 10 64-bit">
+            </div>
+
+            <div class="campo">
+              <label for="req-cpu">Processador</label>
+              <input type="text" id="req-cpu" placeholder="Ex.: Intel Core i5-750 ou AMD Phenom II">
+            </div>
+
+            <div class="duas-colunas">
+              <div class="campo">
+                <label for="req-ram">Memória RAM</label>
+                <input type="text" id="req-ram" placeholder="Ex.: 8 GB RAM">
+              </div>
+
+              <div class="campo">
+                <label for="req-gpu">Placa de Vídeo</label>
+                <input type="text" id="req-gpu" placeholder="Ex.: NVIDIA GTX 1060">
+              </div>
+            </div>
+          </fieldset>
+
+          <button type="submit" class="botao-primario">Salvar Jogo</button>
+        </form>
+        </form>
+      </div>
+
+      <div class="panel list-panel">
+        <div class="painel-header-busca">
+          <h3>Jogos no Catálogo</h3>
+          <button type="button" class="botao-secundario botao-sm" id="btn-recarregar-jogos">Atualizar</button>
+        </div>
+        <div class="tabela-scroll">
+          <table class="admin-tabela">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Título</th>
+              <th>Gênero</th>
+              <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="tabela-jogos-corpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-lojas" class="tab-painel">
+    <div class="admin-grid-layout">
+      <div class="panel form-panel">
+        <h3>Cadastrar Loja Parceira</h3>
+        <form id="form-cadastrar-loja">
+          <div class="campo">
+            <label for="loja-nome">Nome da Loja *</label>
+            <input type="text" id="loja-nome" required placeholder="Ex.: Steam">
+          </div>
+          <div class="campo">
+            <label for="loja-url">URL da Loja *</label>
+            <input type="url" id="loja-url" required placeholder="https://store.steampowered.com">
+          </div>
+          <div class="campo">
+            <label for="loja-logo">URL do Logo</label>
+            <input type="url" id="loja-logo" placeholder="https://exemplo.com/logo.png">
+          </div>
+          <button type="submit" class="botao-primario">Salvar Loja</button>
+        </form>
+      </div>
+
+      <div class="panel list-panel">
+        <div class="painel-header-busca">
+          <h3>Lojas Parceiras</h3>
+          <button type="button" class="botao-secundario botao-sm" id="btn-recarregar-lojas">Atualizar</button>
+        </div>
+        <div class="tabela-scroll">
+          <table class="admin-tabela">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>Link</th>
+              <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="tabela-lojas-corpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-ofertas" class="tab-painel">
+    <div class="admin-grid-layout">
+      <div class="panel form-panel">
+        <h3>Vincular Oferta</h3>
+        <form id="form-cadastrar-oferta">
+          <div class="campo">
+            <label for="oferta-jogo-select">Jogo *</label>
+            <select id="oferta-jogo-select" required>
+              <option value="">Selecione um jogo...</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="oferta-loja-select">Loja *</label>
+            <select id="oferta-loja-select" required>
+              <option value="">Selecione uma loja...</option>
+            </select>
+          </div>
+          <div class="duas-colunas">
+            <div class="campo">
+              <label for="oferta-preco-orig">Preço Original (R$) *</label>
+              <input type="number" step="0.01" id="oferta-preco-orig" required placeholder="199.90">
+            </div>
+            <div class="campo">
+              <label for="oferta-preco-atual">Preço Atual / Promoção (R$) *</label>
+              <input type="number" step="0.01" id="oferta-preco-atual" required placeholder="79.90">
+            </div>
+          </div>
+          <div class="campo">
+            <label for="oferta-url">URL da Oferta</label>
+            <input type="url" id="oferta-url" placeholder="https://store.steampowered.com/app/...">
+          </div>
+          <button type="submit" class="botao-primario">Publicar Oferta</button>
+        </form>
+      </div>
+
+      <div class="panel list-panel">
+        <h3>Visualizador de Ofertas</h3>
+        <p class="admin-subinfo">Selecione um jogo para editar os preços cadastrados em cada loja:</p>
+        <div class="campo" style="margin-top: 10px;">
+          <select id="filtro-auditoria-jogo">
+            <option value="">Escolha um jogo...</option>
+          </select>
+        </div>
+        <div class="tabela-scroll">
+          <table class="admin-tabela">
+            <thead>
+            <tr>
+              <th>Loja</th>
+              <th>Preço Original</th>
+              <th>Preço Atual</th>
+              <th>Desconto</th>
+            </tr>
+            </thead>
+            <tbody id="tabela-ofertas-corpo">
+            <tr><td colspan="4" class="estado-vazio">Selecione um jogo acima.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tab-usuarios" class="tab-painel">
+    <div class="admin-grid-layout">
+      <div class="panel form-panel">
+        <h3>Criar novo Admin</h3>
+        <p class="admin-subinfo">Crie contas que herdam todas as permissões do sistema.</p>
+        <form id="form-cadastrar-admin">
+          <div class="campo">
+            <label for="admin-nome">Nome *</label>
+            <input type="text" id="admin-nome" required placeholder="Nome completo">
+          </div>
+          <div class="campo">
+            <label for="admin-email">E-mail *</label>
+            <input type="email" id="admin-email" required placeholder="admin@savepoint.com">
+          </div>
+          <div class="campo">
+            <label for="admin-senha">Senha Provisória *</label>
+            <input type="password" id="admin-senha" required minlength="8" placeholder="Mínimo 8 caracteres">
+          </div>
+          <button type="submit" class="botao-primario">Cadastrar Administrador</button>
+        </form>
+      </div>
+
+      <div class="panel list-panel">
+        <div class="painel-header-busca">
+          <h3>Usuários Registrados</h3>
+          <button type="button" class="botao-secundario botao-sm" id="btn-recarregar-usuarios">Atualizar</button>
+        </div>
+        <div class="tabela-scroll">
+          <table class="admin-tabela">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Perfil</th>
+              <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="tabela-usuarios-corpo"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="rodape"></div>
+</body>
+</html>

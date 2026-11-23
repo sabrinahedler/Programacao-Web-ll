@@ -271,8 +271,16 @@ async function renderizarAvaliacoes() {
 
 function htmlAvaliacao(avaliacao) {
   const autor = avaliacao.usuario || {};
-  const recomenda = Number(avaliacao.nota) >= 4;
+  const nota = Number(avaliacao.nota) || 0;
   const horas = Number(avaliacao.horasJogadas) || 0;
+
+  let statusSelo = { classe: "nao", texto: "👎 Não recomendado" };
+  if (nota >= 4) {
+    statusSelo = { classe: "sim", texto: "👍 Recomendado" };
+  } else if (nota === 3) {
+    statusSelo = { classe: "neutro", texto: "⚖️ Neutro" };
+  }
+
   return `
     <article class="avaliacao">
       <div class="avaliacao-autor">
@@ -284,7 +292,7 @@ function htmlAvaliacao(avaliacao) {
       </div>
       <div class="avaliacao-corpo">
         <div class="avaliacao-topo">
-          <span class="selo-recomenda ${recomenda ? "sim" : "nao"}">${recomenda ? "👍 Recomendado" : "👎 Não recomendado"}</span>
+          <span class="selo-recomenda ${statusSelo.classe}">${statusSelo.texto}</span>
           ${htmlEstrelas(avaliacao.nota)}
         </div>
         ${avaliacao.dataPublicacao ? `<p class="avaliacao-data">Publicada em ${formatarData(avaliacao.dataPublicacao)}</p>` : ""}

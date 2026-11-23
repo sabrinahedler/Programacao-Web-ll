@@ -1,0 +1,237 @@
+.admin-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tab-painel {
+  display: none;
+  animation: surgir .3s ease both;
+}
+
+.tab-painel.ativo {
+  display: block;
+}
+
+.admin-grid-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) 1.5fr;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+@media (max-width: 900px) {
+  .admin-grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-panel h3, .list-panel h3 {
+  margin: 0 0 16px 0;
+  font-size: 17px;
+  color: var(--white, #fff);
+}
+
+.admin-subinfo {
+  font-size: 12px;
+  color: var(--muted, #8F94A9);
+  margin-bottom: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.campo label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2, #B0B4C5);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--raio, 8px);
+  background: var(--surface-2, #181A22);
+  border: 1px solid var(--line, #303342);
+  color: var(--white, #fff);
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s ease;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: var(--purple, #7c3aed);
+}
+
+.duas-colunas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.painel-header-busca {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.admin-fieldset {
+  border: 1px solid var(--line, #303342);
+  border-radius: var(--raio, 8px);
+  padding: 14px;
+  margin: 16px 0 24px;
+  background: rgba(124, 58, 237, 0.04);
+}
+
+.admin-tabela td.estado-vazio {
+  display: table-cell !important;
+  width: 100%;
+  text-align: center;
+  padding: 28px 16px;
+  color: var(--muted, #8F94A9);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.botao-sm {
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+}
+
+.tabela-scroll {
+  overflow-x: auto;
+  max-height: 520px;
+}
+
+.admin-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+
+.admin-tabela th {
+  padding: 10px;
+  background: var(--surface, #12131A);
+  color: #8F94A9;
+  border-bottom: 1px solid #282B38;
+}
+
+.admin-tabela td {
+  padding: 10px;
+  border-bottom: 1px solid #20222D;
+  color: var(--white, #fff);
+  vertical-align: middle;
+}
+
+.admin-tabela tr:hover td {
+  background: var(--surface-2, #181A22);
+}
+
+.badge-role {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.badge-role.admin {
+  background: var(--purple-bg, rgba(124,58,237,.2));
+  color: var(--purple-soft, #D9C4FF);
+  border: 1px solid var(--purple, #7c3aed);
+}
+
+.badge-role.user {
+  background: #252836;
+  color: #8F94A9;
+}
+
+.btn-acao-del {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  transition: background .2s ease;
+}
+
+.btn-acao-del:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+.admin-mensagem {
+  padding: 12px 16px;
+  border-radius: var(--raio, 8px);
+  margin-bottom: 16px;
+  font-size: 13px;
+  animation: surgir .2s ease;
+}
+
+.admin-mensagem.sucesso {
+  background: rgba(184, 255, 59, 0.15);
+  border: 1px solid var(--lime, #b8ff3b);
+  color: var(--white, #fff);
+}
+
+.admin-mensagem.erro {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fff;
+}
+
+body.admin-protegido #conteudo-admin {
+  display: none !important;
+}
+
+.painel-bloqueio {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.estado-negado {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  padding: 36px 24px;
+  border-color: #ef4444;
+  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.15);
+}
+
+.icone-alerta {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.estado-negado h2 {
+  font-size: 22px;
+  color: var(--white, #fff);
+  margin-bottom: 8px;
+}
+
+.estado-negado p {
+  color: var(--muted, #8F94A9);
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.sub-redirecionando {
+  font-size: 12px !important;
+  color: var(--purple-soft, #D9C4FF) !important;
+}

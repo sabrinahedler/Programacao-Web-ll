@@ -16,7 +16,7 @@ public class OfertaJogo {
     private Long id;
     private double precoOriginal;
     private double precoAtual;
-    private float percentualDesconto;
+    private Float percentualDesconto;
 
     @ManyToOne
     @JoinColumn(name = "jogo_id", nullable = false)
@@ -33,11 +33,11 @@ public class OfertaJogo {
     public OfertaJogo () {
     }
 
-    public OfertaJogo(Long id, double precoOriginal, double precoAtual, float percentualDesconto, Jogo jogo, Loja loja, List<Historico> historico) {
+    public OfertaJogo(Long id, double precoOriginal, double precoAtual, Float percentualDesconto, Jogo jogo, Loja loja, List<Historico> historico) {
         this.id = id;
         this.precoOriginal = precoOriginal;
         this.precoAtual = precoAtual;
-        this.percentualDesconto = percentualDesconto;
+        this.percentualDesconto = 0.0F;
         this.jogo = jogo;
         this.loja = loja;
         this.historico = historico;

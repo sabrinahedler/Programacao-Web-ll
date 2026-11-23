@@ -17,23 +17,15 @@ public class RotinaNotificacaoOferta {
     private final ItemListaDesejosRepository itemListaDesejosRepository;
     private final EmailService emailService;
 
-    public RotinaNotificacaoOferta(OfertaJogoRepository ofertaJogoRepository,
-                                   ItemListaDesejosRepository itemListaDesejosRepository,
-                                   EmailService emailService) {
+    public RotinaNotificacaoOferta(OfertaJogoRepository ofertaJogoRepository, ItemListaDesejosRepository itemListaDesejosRepository, EmailService emailService) {
         this.ofertaJogoRepository = ofertaJogoRepository;
         this.itemListaDesejosRepository = itemListaDesejosRepository;
         this.emailService = emailService;
     }
 
-    /**
-     * a cada minuto, confere cada jogo das listas de desejos:
-     * - se o usuário desligou "notificar", pula
-     * - se ele informou um preço (precoAlerta > 0), avisa quando o menor preço chegar a esse valor ou menos
-     * - se não informou preço (precoAlerta = 0), avisa quando o jogo entrar em qualquer promoção
-     */
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 0 9 * * *")
     public void verificarOfertasENotificar() {
-        System.out.println("Verificando ofertas para as listas de desejos...");
+        System.out.println("Verificando ofertas...");
 
         for (ItemListaDesejos item : itemListaDesejosRepository.findAll()) {
             if (!item.isNotificarOferta() || item.getJogo() == null || item.getListaDesejos() == null) {
@@ -51,16 +43,13 @@ public class RotinaNotificacaoOferta {
             }
 
             OfertaJogo melhorOferta = ofertas.get(0);
-            boolean atingiuAlerta = item.getPrecoAlerta() > 0
-                    ? melhorOferta.getPrecoAtual() <= item.getPrecoAlerta()
-                    : melhorOferta.getPercentualDesconto() > 0;
+            boolean atingiuAlerta = item.getPrecoAlerta() > 0 ? melhorOferta.getPrecoAtual() <= item.getPrecoAlerta() : melhorOferta.getPercentualDesconto() > 0;
 
             if (atingiuAlerta) {
-                emailService.enviarAlertaOferta(
-                        usuario.getEmail(),
-                        item.getJogo().getTitulo(),
-                        melhorOferta.getPrecoAtual()
-                );
+                emailService.enviarAlertaOferta(usuario.getEmail(), item.getJogo().getTitulo(), melhorOferta.getPrecoAtual());
+                item.setNotificarOferta(false);
+                itemListaDesejosRepository.save(item);
+                System.out.println("Alerta enviado e desativado para o usuário: " + usuario.getEmail());
             }
         }
     }

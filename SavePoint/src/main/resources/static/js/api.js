@@ -1,12 +1,10 @@
 //   api.js — toda a comunicação com o back-end passa por aqui
-
 const API_BASE_URL = "";
 
 const CHAVE_SESSAO = "savepoint.sessao";
 const CHAVE_USUARIO = "savepoint.usuario";
 
 // navegador pode bloquear o localStorage
-
 function lerArmazenado(chave) {
   try {
     return JSON.parse(localStorage.getItem(chave));
@@ -115,7 +113,6 @@ async function obterTokenValido() {
 }
 
 // requisições
-
 class ApiError extends Error {
   constructor(status, mensagem) {
     super(mensagem);
@@ -133,9 +130,6 @@ function mensagemPadrao(status) {
   return "Não foi possível concluir a ação.";
 }
 
-// Chamada genérica à API.
-// autenticado: true  -> envia "Authorization: Bearer <token>"
-// autenticado: false -> NUNCA envia token (rotas públicas)
 async function apiRequest(caminho, { method = "GET", body, autenticado = false } = {}) {
   const headers = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
@@ -180,7 +174,6 @@ async function apiRequest(caminho, { method = "GET", body, autenticado = false }
 }
 
 // usuário logado
-
 function usuarioEmCache() {
   return estaLogado() ? lerArmazenado(CHAVE_USUARIO) : null;
 }
@@ -202,7 +195,6 @@ function atualizarUsuarioEmCache(usuario) {
 }
 
 // rotas da API usadas pelas telas
-
 const SavePointApi = {
   // autenticação
   login: (login, senha) =>
@@ -222,12 +214,20 @@ const SavePointApi = {
 
   // avaliações
   listarAvaliacoes: (jogoId) => apiRequest(`/jogos/${encodeURIComponent(jogoId)}/avaliacoes`),
-  avaliar: (jogoId, { nota, textoAvaliacao, horasJogadas }) =>
-    apiRequest(`/jogos/${encodeURIComponent(jogoId)}/avaliacoes`, {
-      method: "POST",
-      body: { nota, textoAvaliacao, horasJogadas },
-      autenticado: true,
-    }),
+    avaliar: (jogoId, { nota, textoAvaliacao, horasJogadas }) => {
+      const usuario = usuarioEmCache();
+      return apiRequest(`/jogos/${encodeURIComponent(jogoId)}/avaliacoes`, {
+        method: "POST",
+        body: {
+          nota: Number(nota),
+          textoAvaliacao,
+          horasJogadas: Number(horasJogadas) || 0,
+          curtidas: 0,
+          usuario: { id: usuario?.id }
+        },
+        autenticado: true,
+      });
+    },
 
   // usuário
   meusDados: () => apiRequest("/usuarios/me", { autenticado: true }),

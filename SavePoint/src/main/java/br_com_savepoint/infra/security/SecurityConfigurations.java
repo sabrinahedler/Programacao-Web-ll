@@ -28,7 +28,8 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        // primeira regra que combinar com a requisição é a que vale
+
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // autenticação (público)
                         .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register", "/auth/refresh").permitAll()
@@ -66,6 +67,9 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*").authenticated()
                         .requestMatchers("/usuarios/*/lista-desejos/**").authenticated()
+
+                        //permite a criação de usuários com permissão de ADMIN
+                        .requestMatchers(HttpMethod.POST, "/usuarios/admin").hasRole("ADMIN")
 
                         // demais rotas de usuários: somente ADMIN
                         .requestMatchers("/usuarios/**").hasRole("ADMIN")

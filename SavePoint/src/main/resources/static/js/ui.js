@@ -100,7 +100,6 @@ document.addEventListener(
   true
 );
 
-
 const AVATAR_PADRAO = "/assets/avatar-padrao.svg";
 
 function urlAvatar(usuario) {
@@ -163,6 +162,12 @@ function montarCabecalho() {
   const ativo = (nome) => (pagina === nome ? ' class="active" aria-current="page"' : "");
   const busca = pagina === "jogos" ? escaparHtml(parametroDaUrl("q") || "") : "";
 
+  const usuarioCache = usuarioEmCache();
+  const isAdmin = usuarioCache && (
+    usuarioCache.role === "ADMIN" ||
+    (Array.isArray(usuarioCache.authorities) && usuarioCache.authorities.some(a => a.authority === "ROLE_ADMIN"))
+  );
+
   destino.outerHTML = `
     <header class="site-header">
       <button class="menu-toggle icon-button" type="button" aria-expanded="false" aria-controls="main-nav" aria-label="Abrir menu">${ICONES.menu}</button>
@@ -171,6 +176,7 @@ function montarCabecalho() {
         <a href="jogos.html"${ativo("jogos")}>Jogos</a>
         <a href="wishlist.html" data-protegido="wishlist"${ativo("wishlist")}>Wishlist</a>
         <a href="sobre.html"${ativo("sobre")}>Sobre</a>
+        ${isAdmin ? `<a href="admin.html"${ativo("admin")}>Painel de Controle</a>` : ""}
       </nav>
       <form class="header-search" action="jogos.html" method="get" role="search">
         <label class="sr-only" for="busca-topo">Procurar jogos</label>
@@ -188,8 +194,30 @@ function montarCabecalho() {
     botaoMenu.setAttribute("aria-expanded", String(aberto));
   });
 
-  renderizarAcoesUsuario(usuarioEmCache());
-  if (estaLogado()) obterUsuario().then((usuario) => renderizarAcoesUsuario(usuario));
+  renderizarAcoesUsuario(usuarioCache);
+
+  if (estaLogado()) {
+    obterUsuario().then((usuario) => {
+      renderizarAcoesUsuario(usuario);
+
+      const ehAdminAtualizado = usuario && (
+        usuario.role === "ADMIN" ||
+        (Array.isArray(usuario.authorities) && usuario.authorities.some(a => a.authority === "ROLE_ADMIN"))
+      );
+
+      const navAtual = document.querySelector("#main-nav");
+      if (ehAdminAtualizado && navAtual && !navAtual.querySelector('a[href="admin.html"]')) {
+        const link = document.createElement("a");
+        link.href = "admin.html";
+        link.textContent = "Painel de Controle";
+        if (pagina === "admin") {
+          link.className = "active";
+          link.setAttribute("aria-current", "page");
+        }
+        navAtual.appendChild(link);
+      }
+    });
+  }
 }
 
 function renderizarAcoesUsuario(usuario) {
@@ -202,6 +230,12 @@ function renderizarAcoesUsuario(usuario) {
   }
 
   const nome = usuario && usuario.nome ? usuario.nome : "Minha conta";
+
+  const isAdmin = usuario && (
+    usuario.role === "ADMIN" ||
+    (Array.isArray(usuario.authorities) && usuario.authorities.some(a => a.authority === "ROLE_ADMIN"))
+  );
+
   area.innerHTML = `
     <div class="menu-usuario">
       <button class="botao-avatar" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Menu da conta">
@@ -211,6 +245,7 @@ function renderizarAcoesUsuario(usuario) {
         <p class="menu-usuario-nome">${escaparHtml(nome)}</p>
         <a href="perfil.html">Meu perfil</a>
         <a href="wishlist.html">Lista de desejos</a>
+        ${isAdmin ? `<a href="admin.html" style="color: var(--purple-soft, #D9C4FF); font-weight: 700;">Painel de Controle</a>` : ""}
         <button type="button" data-acao="sair">Sair</button>
       </div>
     </div>`;
@@ -289,7 +324,7 @@ function htmlPreco(oferta) {
     </div>`;
 }
 
-// =botão de lista de desejos
+// botão de lista de desejos
 function htmlBotaoWishlist(jogo, classe = "wish-btn") {
   return `<button class="${classe}" type="button" data-acao="wishlist" data-jogo-id="${jogo.id}"
             data-titulo="${escaparHtml(jogo.titulo)}" aria-pressed="false"
@@ -346,7 +381,7 @@ function htmlSkeletonLinhas(quantidade = 5) {
 
 const ListaDesejos = {
   usuarioId: null,
-  itens: new Map(), // jogoId -> item { id, precoAlerta, notificarOferta, jogo }
+  itens: new Map(),
   carregada: false,
   promessa: null,
 
@@ -530,6 +565,7 @@ function resumoAvaliacoes(avaliacoes) {
   if (percentual >= 80) { rotulo = "Muito positivas"; classe = "positivo"; }
   else if (percentual >= 70) { rotulo = "Positivas"; classe = "positivo"; }
   else if (percentual >= 40) { rotulo = "Neutras"; classe = "misto"; }
+  else if (percentual >= 20) {rotulo = "Ligeiramente negativas"; classe = "negativo";}
   return { total, media, percentual, rotulo, classe };
 }
 
@@ -539,7 +575,6 @@ function htmlEstrelas(nota) {
 }
 
 // inicialização comum - todas as páginas
-
 document.addEventListener("DOMContentLoaded", () => {
   montarCabecalho();
   montarRodape();

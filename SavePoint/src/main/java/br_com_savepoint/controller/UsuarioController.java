@@ -1,17 +1,22 @@
 package br_com_savepoint.controller;
 
 import br_com_savepoint.dto.AtualizarSenhaRequest;
+import br_com_savepoint.model.RegisterDTO;
 import br_com_savepoint.model.UserRoles;
 import br_com_savepoint.model.Usuario;
 import br_com_savepoint.service.UsuarioService;
+import br_com_savepoint.repository.UsuarioRepository;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import br_com_savepoint.model.UserRoles;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -20,6 +25,9 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -77,9 +85,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario,
-                                       @AuthenticationPrincipal Usuario logado) {
-
+    public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Usuario usuario, @AuthenticationPrincipal Usuario logado) {
         // cada usuário só altera o próprio cadastro, ADMIN altera qualquer um
         if (logado == null || (logado.getRole() != UserRoles.ADMIN && !logado.getId().equals(id))) {
             return new ResponseEntity<String>("Acesso negado.", HttpStatus.FORBIDDEN);
@@ -144,6 +150,23 @@ public class UsuarioController {
     @GetMapping("/ativos/count")
     public ResponseEntity<Long> contarAtivos() {
         return new ResponseEntity<Long>(usuarioService.contarAtivos(), HttpStatus.OK);
+    }
+
+    @PostMapping("/admin")
+    public ResponseEntity<?> criarAdministrador(@RequestBody @Valid RegisterDTO data) {
+        if (this.usuarioRepository.findByEmail(data.email()).isPresent()) {
+            return ResponseEntity.badRequest().body("E-mail já cadastrado.");
+        }
+
+        String senhaCriptografada = new BCryptPasswordEncoder().encode(data.senha());
+
+        Usuario novoAdmin = new Usuario(data.nome(), data.email(), senhaCriptografada, UserRoles.ADMIN);
+        novoAdmin.setAtivo(true);
+        novoAdmin.setDataCadastro(LocalDateTime.now());
+
+        this.usuarioRepository.save(novoAdmin);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(java.util.Map.of("id", novoAdmin.getId(), "nome", novoAdmin.getNome(), "email", novoAdmin.getEmail(), "role", novoAdmin.getRole().name()));
     }
 
     /** ADMIN acessa qualquer usuário; USER só o próprio cadastro. */

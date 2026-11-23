@@ -8,6 +8,7 @@ import br_com_savepoint.repository.JogoRepository;
 import br_com_savepoint.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -74,8 +75,11 @@ public class AvaliacaoUsuarioService {
         if (avaliacao.getHorasJogadas() == null) {
             avaliacao.setHorasJogadas(0);
         }
+        if (avaliacao.getDataPublicacao() == null) {
+            avaliacao.setDataPublicacao(LocalDateTime.now());
+        }
 
-        avaliacao.setIndiceRecomendacao(avaliacao.getNota() >= 4);
+        avaliacao.setIndiceRecomendacao(avaliacao.getNota() != null && avaliacao.getNota() >= 4);
 
         return avaliacaoRepositorio.save(avaliacao);
     }
