@@ -259,3 +259,43 @@ body.admin-protegido #conteudo-admin {
   width: 1%;
   white-space: nowrap;
 }
+
+dialog#modal-confirmacao {
+  border: 1px solid var(--line, #303342);
+  background: var(--surface, #12131a);
+  border-radius: var(--raio, 12px);
+  padding: 0;
+  max-width: 420px;
+  width: 90%;
+  color: var(--white, #fff);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+
+dialog#modal-confirmacao::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+dialog#modal-confirmacao .janela-conteudo {
+  padding: 24px;
+  text-align: center;
+}
+
+dialog#modal-confirmacao h2 {
+  font-size: 18px;
+  margin: 0 0 8px;
+  color: var(--white, #fff);
+}
+
+dialog#modal-confirmacao p {
+  color: var(--muted, #8F94A9);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+dialog#modal-confirmacao .janela-acoes {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}

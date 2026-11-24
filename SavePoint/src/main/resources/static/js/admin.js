@@ -263,20 +263,30 @@ async function carregarTabelaLojas() {
       return;
     }
 
-    tbody.innerHTML = listaLojasCache.map(l => `
-      <tr>
-        <td><strong>#${l.id}</strong></td>
-        <td>${l.nome || "-"}</td>
-        <td><a href="${l.urlLoja}" target="_blank" style="color: var(--lime); font-size: 11px;">Acessar</a></td>
-        <td>
-          <button type="button" class="btn-acao-del" onclick="removerLoja(${l.id})">Excluir</button>
-        </td>
-      </tr>
-    `).join("");
-  } catch (erro) {
-    tbody.innerHTML = `<tr><td colspan="4" class="estado-vazio">${erro.message}</td></tr>`;
-  }
-}
+    tbody.innerHTML = listaLojasCache.map(l => {
+          const urlCompleta = l.urlLoja
+            ? (/^https?:\/\//i.test(l.urlLoja) ? l.urlLoja : `https://${l.urlLoja}`)
+            : "#";
+
+          return `
+            <tr>
+              <td><strong>#${l.id}</strong></td>
+              <td>${l.nome || "-"}</td>
+              <td>
+                <a href="${urlCompleta}" target="_blank" rel="noopener noreferrer" style="color: var(--lime); font-size: 11px;">
+                  Acessar
+                </a>
+              </td>
+              <td>
+                <button type="button" class="btn-acao-del" onclick="removerLoja(${l.id})">Excluir</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } catch (erro) {
+        tbody.innerHTML = `<tr><td colspan="4" class="estado-vazio">${erro.message}</td></tr>`;
+      }
+    }
 
 async function carregarTabelaUsuarios() {
   const tbody = document.querySelector("#tabela-usuarios-corpo");
@@ -392,11 +402,9 @@ async function carregarAuditoriaOfertas(jogoId) {
 }
 
 function popularSelects() {
-  const opcoesJogos = `<option value="">Selecione um jogo...</option>` +
-    listaJogosCache.map((j) => `<option value="${j.id}">${escaparHtml(j.titulo)}</option>`).join("");
+  const opcoesJogos = `<option value="">Selecione um jogo...</option>` + listaJogosCache.map((j) => `<option value="${j.id}">${escaparHtml(j.titulo)}</option>`).join("");
 
-  const opcoesLojas = `<option value="">Selecione uma loja...</option>` +
-    listaLojasCache.map((l) => `<option value="${l.id}">${escaparHtml(l.nome)}</option>`).join("");
+  const opcoesLojas = `<option value="">Selecione uma loja...</option>` + listaLojasCache.map((l) => `<option value="${l.id}">${escaparHtml(l.nome)}</option>`).join("");
 
   const selectJogoOferta = document.querySelector("#oferta-jogo-select");
   const selectFiltroJogo = document.querySelector("#filtro-auditoria-jogo");
@@ -407,8 +415,77 @@ function popularSelects() {
   if (selectLojaOferta) selectLojaOferta.innerHTML = opcoesLojas;
 }
 
+function confirmarAcaoCustomizada(titulo, mensagem) {
+  return new Promise((resolve) => {
+    const modal = document.querySelector("#modal-confirmacao");
+    const txtTitulo = document.querySelector("#modal-confirma-titulo");
+    const txtMensagem = document.querySelector("#modal-confirma-texto");
+    const btnCancelar = document.querySelector("#modal-btn-cancelar");
+    const btnConfirmar = document.querySelector("#modal-btn-confirmar");
+
+    txtTitulo.textContent = titulo;
+    txtMensagem.textContent = mensagem;
+
+    const fechar = (confirmado) => {
+      modal.close();
+      btnCancelar.removeEventListener("click", onCancelar);
+      btnConfirmar.removeEventListener("click", onConfirmar);
+      modal.removeEventListener("close", onClose);
+      resolve(confirmado);
+    };
+
+    const onCancelar = () => fechar(false);
+    const onConfirmar = () => fechar(true);
+    const onClose = () => fechar(false);
+
+    btnCancelar.addEventListener("click", onCancelar);
+    btnConfirmar.addEventListener("click", onConfirmar);
+    modal.addEventListener("close", onClose, { once: true });
+
+    modal.showModal();
+  });
+}
+
+async function removerLoja(id) {
+  const confirmou = await confirmarAcaoCustomizada(
+    "Excluir Loja",
+    "Tem certeza que deseja excluir esta loja? Todas as ofertas vinculadas a ela também serão removidas."
+  );
+  if (!confirmou) return;
+
+  try {
+    await apiRequest(`/lojas/${id}`, { method: "DELETE", autenticado: true });
+    exibirAviso("Loja excluída com sucesso!");
+    await carregarTabelaLojas();
+    popularSelects();
+  } catch (erro) {
+    exibirAviso(erro.message || "Erro ao excluir loja.", "erro");
+  }
+}
+
+async function removerUsuario(id) {
+  const confirmou = await confirmarAcaoCustomizada(
+    "Excluir Usuário",
+    `Deseja realmente remover o usuário #${id}?`
+  );
+  if (!confirmou) return;
+
+  try {
+    await apiRequest(`/usuarios/${id}`, { method: "DELETE", autenticado: true });
+    exibirAviso("Usuário excluído com sucesso!");
+    await carregarTabelaUsuarios();
+  } catch (erro) {
+    exibirAviso(erro.message || "Erro ao excluir usuário.", "erro");
+  }
+}
+
 async function removerJogo(id) {
-  if (!confirm("Tem certeza que deseja excluir este jogo?")) return;
+  const confirmou = await confirmarAcaoCustomizada(
+    "Excluir Jogo",
+    `Deseja realmente remover o jogo #${id} do catálogo?`
+  );
+  if (!confirmou) return;
+
   try {
     await apiRequest(`/jogos/${id}`, { method: "DELETE", autenticado: true });
     exibirAviso("Jogo excluído com sucesso!");
@@ -418,3 +495,28 @@ async function removerJogo(id) {
     exibirAviso(erro.message || "Erro ao excluir jogo.", "erro");
   }
 }
+
+async function excluirOferta(ofertaId, jogoId) {
+  const confirmou = await confirmarAcaoCustomizada(
+    "Excluir Oferta",
+    "Tem certeza que deseja excluir esta oferta e todo o histórico de preços dela?"
+  );
+  if (!confirmou) return;
+
+  try {
+    await apiRequest(`/ofertas/${ofertaId}`, {
+      method: "DELETE",
+      autenticado: true,
+    });
+    exibirAviso("Oferta excluída com sucesso!");
+    carregarAuditoriaOfertas(jogoId);
+  } catch (erro) {
+    exibirAviso(erro.message || "Erro ao excluir oferta.", "erro");
+  }
+}
+
+window.removerJogo = removerJogo;
+window.removerLoja = removerLoja;
+window.removerUsuario = removerUsuario;
+window.alterarPrecoOferta = alterarPrecoOferta;
+window.excluirOferta = excluirOferta;
