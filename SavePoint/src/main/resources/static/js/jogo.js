@@ -93,25 +93,46 @@ function htmlPaginaJogo() {
     </section>
 
     <div class="abas" role="tablist" aria-label="Informações do jogo">
-      <button class="aba ativa" type="button" role="tab" id="aba-sobre" aria-controls="painel-sobre" aria-selected="true">Sobre o jogo</button>
-      <button class="aba" type="button" role="tab" id="aba-requisitos" aria-controls="painel-requisitos" aria-selected="false">Requisitos mínimos</button>
-      <button class="aba" type="button" role="tab" id="aba-avaliacoes" aria-controls="painel-avaliacoes" aria-selected="false">Avaliações <span class="contador-aba" id="contador-avaliacoes">${resumo.total}</span></button>
-    </div>
+          <button class="aba ativa" type="button" role="tab" id="aba-sobre" aria-controls="painel-sobre" aria-selected="true">Sobre o jogo</button>
+          <button class="aba" type="button" role="tab" id="aba-requisitos" aria-controls="painel-requisitos" aria-selected="false">Requisitos mínimos</button>
+          <button class="aba" type="button" role="tab" id="aba-avaliacoes" aria-controls="painel-avaliacoes" aria-selected="false">Avaliações <span class="contador-aba" id="contador-avaliacoes">${resumo.total}</span></button>
+          <button class="aba" type="button" role="tab" id="aba-historico" aria-controls="painel-historico" aria-selected="false">Histórico de preços</button>
+        </div>
 
-    <section class="bloco painel-aba" role="tabpanel" id="painel-sobre" aria-labelledby="aba-sobre">
-      ${htmlDescricaoCompleta(jogo.descricao)}
-    </section>
+        <section class="bloco painel-aba" role="tabpanel" id="painel-sobre" aria-labelledby="aba-sobre">
+          ${htmlDescricaoCompleta(jogo.descricao)}
+        </section>
 
-    <section class="bloco painel-aba" role="tabpanel" id="painel-requisitos" aria-labelledby="aba-requisitos" hidden>
-      ${htmlRequisitos(jogo.requisitosMinimos)}
-    </section>
+        <section class="bloco painel-aba" role="tabpanel" id="painel-requisitos" aria-labelledby="aba-requisitos" hidden>
+          ${htmlRequisitos(jogo.requisitosMinimos)}
+        </section>
 
-    <section class="bloco painel-aba" role="tabpanel" id="painel-avaliacoes" aria-labelledby="aba-avaliacoes" hidden>
-      <div id="resumo-avaliacoes"></div>
-      <div id="area-formulario-avaliacao"></div>
-      <div id="lista-avaliacoes"></div>
-    </section>`;
-}
+        <section class="bloco painel-aba" role="tabpanel" id="painel-avaliacoes" aria-labelledby="aba-avaliacoes" hidden>
+          <div id="resumo-avaliacoes"></div>
+          <div id="area-formulario-avaliacao"></div>
+          <div id="lista-avaliacoes"></div>
+        </section>
+
+        <section class="bloco painel-aba" role="tabpanel" id="painel-historico" aria-labelledby="aba-historico" hidden>
+          <div class="historico-topo">
+            <div>
+              <h3>Histórico de preços</h3>
+              <p class="demo-notice" id="resumo-historico">Selecione uma loja para ver a variação.</p>
+            </div>
+
+            <select id="select-loja-historico" aria-label="Escolher loja">
+              <option value="">Carregando lojas...</option>
+            </select>
+          </div>
+
+          <div class="grafico-container">
+            <canvas id="grafico-historico"></canvas>
+          </div>
+          <p id="historico-vazio" class="estado-vazio" hidden>
+            Ainda não há registros de alteração de preço para esta oferta.
+          </p>
+        </section>`;
+    }
 
 function htmlRotuloAvaliacao(resumo) {
   if (!resumo.total) return `<span class="rotulo-avaliacao neutro">Sem avaliações</span>`;
@@ -184,6 +205,128 @@ function htmlOfertas() {
     <p class="demo-notice">A compra é feita no site da loja. Preços podem mudar sem aviso.</p>`;
 }
 
+let graficoHistoricoInstancia = null;
+let historicoInicializado = false;
+
+function inicializarHistorico() {
+  historicoInicializado = true;
+  const select = document.querySelector("#select-loja-historico");
+  const avisoVazio = document.querySelector("#historico-vazio");
+  const canvas = document.querySelector("#grafico-historico");
+
+  if (!ofertasAtuais.length) {
+    select.innerHTML = `<option value="">Sem ofertas cadastradas</option>`;
+    canvas.hidden = true;
+    avisoVazio.hidden = false;
+    return;
+  }
+
+  const ordenadas = [...ofertasAtuais].sort(
+    (a, b) => Number(a.precoAtual) - Number(b.precoAtual)
+  );
+
+  select.innerHTML = ordenadas
+    .map((o) => {
+      const nomeLoja = o.loja?.nome || `Oferta #${o.id}`;
+      return `<option value="${o.id}">${escaparHtml(nomeLoja)}</option>`;
+    })
+    .join("");
+
+  select.addEventListener("change", () => carregarHistoricoDaOferta(select.value));
+  carregarHistoricoDaOferta(ordenadas[0].id);
+}
+
+async function carregarHistoricoDaOferta(ofertaId) {
+  const canvas = document.querySelector("#grafico-historico");
+  const avisoVazio = document.querySelector("#historico-vazio");
+  const resumo = document.querySelector("#resumo-historico");
+
+  try {
+    const registros = await SavePointApi.historicoOferta(ofertaId);
+
+    if (!Array.isArray(registros) || !registros.length) {
+      if (graficoHistoricoInstancia) graficoHistoricoInstancia.destroy();
+      canvas.hidden = true;
+      avisoVazio.hidden = false;
+      resumo.textContent = "Sem alterações de preço registradas.";
+      return;
+    }
+
+    canvas.hidden = false;
+    avisoVazio.hidden = true;
+
+    const ordenados = [...registros].reverse();
+    const datas = ordenados.map((r) =>
+      new Date(r.data).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+    );
+    const precos = ordenados.map((r) => Number(r.preco));
+
+    const menorPreco = Math.min(...precos);
+    resumo.innerHTML = `Menor preço registrado: <strong class="historico-menor-preco">${formatarPreco(menorPreco)}</strong>`;
+
+    renderizarGraficoHistorico(canvas, datas, precos);
+  } catch {
+    resumo.textContent = "Não foi possível carregar o histórico.";
+  }
+}
+
+function renderizarGraficoHistorico(canvas, labels, valores) {
+  if (graficoHistoricoInstancia) graficoHistoricoInstancia.destroy();
+
+  // Lê as cores direto das variáveis do seu style.css
+  const estilos = getComputedStyle(document.documentElement);
+  const corLinha = estilos.getPropertyValue("--lime").trim() || "#A3E635";
+  const corPonto = estilos.getPropertyValue("--purple").trim() || "#7C3AED";
+  const corTexto = estilos.getPropertyValue("--muted").trim() || "#9CA3AF";
+  const corGrade = estilos.getPropertyValue("--line").trim() || "rgba(255, 255, 255, 0.08)";
+
+  graficoHistoricoInstancia = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Preço (R$)",
+          data: valores,
+          borderColor: corLinha,
+          backgroundColor: "rgba(163, 230, 53, 0.12)",
+          borderWidth: 2,
+          pointBackgroundColor: corPonto,
+          pointRadius: 4,
+          tension: 0.2,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => formatarPreco(ctx.raw),
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: { color: corTexto },
+          grid: { color: corGrade },
+        },
+        y: {
+          beginAtZero: false,
+          ticks: {
+            color: corTexto,
+            callback: (v) => `R$ ${v}`,
+          },
+          grid: { color: corGrade },
+        },
+      },
+    },
+  });
+}
+
 // lista de desejos
 function renderizarAcoesWishlist() {
   const area = document.querySelector("#acoes-wishlist");
@@ -228,6 +371,14 @@ function configurarAbas() {
       a.setAttribute("aria-selected", String(ativa));
       document.querySelector(`#${a.getAttribute("aria-controls")}`).hidden = !ativa;
     });
+
+    if (aba.id === "aba-historico") {
+      if (!historicoInicializado) {
+        inicializarHistorico();
+      } else if (graficoHistoricoInstancia) {
+        graficoHistoricoInstancia.resize();
+      }
+    }
   };
   abas.forEach((aba) => aba.addEventListener("click", () => ativar(aba)));
 

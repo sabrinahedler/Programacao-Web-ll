@@ -235,3 +235,27 @@ body.admin-protegido #conteudo-admin {
   font-size: 12px !important;
   color: var(--purple-soft, #D9C4FF) !important;
 }
+
+.botao-perigo {
+  background: transparent;
+  border: 1px solid var(--danger, #ef4444);
+  color: var(--danger, #ef4444);
+  min-width: 100px;
+  border-radius: var(--raio, 8px);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  text-align: center;
+}
+
+.botao-perigo:hover {
+  background: var(--danger, #ef4444);
+  color: #fff;
+}
+
+.admin-tabela th:last-child,
+.admin-tabela td:last-child {
+  width: 1%;
+  white-space: nowrap;
+}

@@ -315,79 +315,106 @@ async function carregarTabelaUsuarios() {
 }
 
 async function carregarAuditoriaOfertas(jogoId) {
-  const tbody = document.querySelector("#tabela-ofertas-corpo");
-  if (!tbody) return;
+      const tbody = document.querySelector("#tabela-ofertas-corpo");
+      if (!tbody) return;
 
-  try {
-    tbody.innerHTML = `<tr><td colspan="4" class="estado-vazio">Buscando ofertas...</td></tr>`;
-    const ofertas = await apiRequest(`/ofertas/${jogoId}/comparacao`);
+      tbody.innerHTML = `<tr><td colspan="5" class="estado-vazio">Carregando...</td></tr>`;
 
-    if (!Array.isArray(ofertas) || ofertas.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" class="estado-vazio">Nenhuma oferta cadastrada para este jogo.</td></tr>`;
-      return;
+      try {
+        const ofertas = await apiRequest(`/ofertas/${encodeURIComponent(jogoId)}/comparacao`);
+
+        if (!Array.isArray(ofertas) || !ofertas.length) {
+          tbody.innerHTML = `<tr><td colspan="5" class="estado-vazio">Nenhuma oferta cadastrada para este jogo.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = ofertas
+          .map((o) => `
+            <tr>
+              <td>${escaparHtml(o.loja?.nome || "Loja")}</td>
+              <td>${formatarPreco(o.precoOriginal)}</td>
+              <td><strong>${formatarPreco(o.precoAtual)}</strong></td>
+              <td>${Math.round(o.percentualDesconto || 0)}%</td>
+              <td>
+               <div style="display:flex; gap:6px;">
+                  <button type="button" class="botao-secundario botao-sm" onclick="alterarPrecoOferta(${o.id}, ${jogoId}, ${o.precoAtual})">
+                     Alterar preço
+                      </button>
+                        <button type="button" class="botao-perigo botao-sm" onclick="excluirOferta(${o.id}, ${jogoId})">
+                          Excluir
+                        </button>
+                     </div>
+                  </td>
+            </tr>
+          `)
+          .join("");
+      } catch (erro) {
+        tbody.innerHTML = `<tr><td colspan="5" class="estado-vazio">${escaparHtml(erro.message)}</td></tr>`;
+      }
     }
 
-    tbody.innerHTML = ofertas.map(o => `
-      <tr>
-        <td><strong>${o.loja ? o.loja.nome : "Loja"}</strong></td>
-        <td><s>R$ ${Number(o.precoOriginal || 0).toFixed(2).replace('.', ',')}</s></td>
-        <td style="color: var(--lime);"><strong>R$ ${Number(o.precoAtual || 0).toFixed(2).replace('.', ',')}</strong></td>
-        <td><span class="discount">-${Math.round(o.percentualDesconto || 0)}%</span></td>
-      </tr>
-    `).join("");
-  } catch (erro) {
-    tbody.innerHTML = `<tr><td colspan="4" class="estado-vazio">${erro.message}</td></tr>`;
-  }
+    async function alterarPrecoOferta(ofertaId, jogoId, precoAtual) {
+      const entrada = prompt(`Novo preço (R$) para esta oferta (atual: R$ ${precoAtual}):`, precoAtual);
+      if (entrada === null) return;
+
+      const novoPreco = Number(entrada.replace(",", "."));
+      if (!Number.isFinite(novoPreco) || novoPreco < 0) {
+        exibirAviso("Informe um preço válido.", "erro");
+        return;
+      }
+
+      try {
+        await apiRequest(`/ofertas/${ofertaId}/historico`, {
+          method: "POST",
+          body: { preco: novoPreco },
+          autenticado: true,
+        });
+        exibirAviso("Preço atualizado e salvo no histórico!");
+        carregarAuditoriaOfertas(jogoId);
+      } catch (erro) {
+        exibirAviso(erro.message || "Erro ao registrar alteração de preço.", "erro");
+      }
+    }
+
+    async function excluirOferta(ofertaId, jogoId) {
+      if (!confirm("Tem certeza que deseja excluir esta oferta e todo o histórico dela?")) return;
+
+      try {
+        await apiRequest(`/ofertas/${ofertaId}`, {
+          method: "DELETE",
+          autenticado: true,
+        });
+        exibirAviso("Oferta excluída com sucesso!");
+        carregarAuditoriaOfertas(jogoId);
+      } catch (erro) {
+        exibirAviso(erro.message || "Erro ao excluir oferta.", "erro");
+      }
 }
 
 function popularSelects() {
-  const selectJogo = document.querySelector("#oferta-jogo-select");
-  const selectFiltro = document.querySelector("#filtro-auditoria-jogo");
-  const selectLoja = document.querySelector("#oferta-loja-select");
+  const opcoesJogos = `<option value="">Selecione um jogo...</option>` +
+    listaJogosCache.map((j) => `<option value="${j.id}">${escaparHtml(j.titulo)}</option>`).join("");
 
-  if (selectJogo && selectFiltro) {
-    const optsJogos = listaJogosCache.map(j => `<option value="${j.id}">${j.titulo}</option>`).join("");
-    selectJogo.innerHTML = `<option value="">Selecione um jogo...</option>` + optsJogos;
-    selectFiltro.innerHTML = `<option value="">Escolha um jogo...</option>` + optsJogos;
-  }
+  const opcoesLojas = `<option value="">Selecione uma loja...</option>` +
+    listaLojasCache.map((l) => `<option value="${l.id}">${escaparHtml(l.nome)}</option>`).join("");
 
-  if (selectLoja) {
-    selectLoja.innerHTML = `<option value="">Selecione uma loja...</option>` +
-      listaLojasCache.map(l => `<option value="${l.id}">${l.nome}</option>`).join("");
-  }
+  const selectJogoOferta = document.querySelector("#oferta-jogo-select");
+  const selectFiltroJogo = document.querySelector("#filtro-auditoria-jogo");
+  const selectLojaOferta = document.querySelector("#oferta-loja-select");
+
+  if (selectJogoOferta) selectJogoOferta.innerHTML = opcoesJogos;
+  if (selectFiltroJogo) selectFiltroJogo.innerHTML = opcoesJogos;
+  if (selectLojaOferta) selectLojaOferta.innerHTML = opcoesLojas;
 }
 
-window.removerJogo = async (id) => {
-  if (!confirm(`Deseja remover o jogo #${id}?`)) return;
+async function removerJogo(id) {
+  if (!confirm("Tem certeza que deseja excluir este jogo?")) return;
   try {
     await apiRequest(`/jogos/${id}`, { method: "DELETE", autenticado: true });
-    exibirAviso("Jogo removido!");
+    exibirAviso("Jogo excluído com sucesso!");
     await carregarTabelaJogos();
     popularSelects();
   } catch (erro) {
-    exibirAviso(erro.message, "erro");
+    exibirAviso(erro.message || "Erro ao excluir jogo.", "erro");
   }
-};
-
-window.removerLoja = async (id) => {
-  if (!confirm(`Deseja remover a loja #${id}?`)) return;
-  try {
-    await apiRequest(`/lojas/${id}`, { method: "DELETE", autenticado: true });
-    exibirAviso("Loja removida!");
-    await carregarTabelaLojas();
-    popularSelects();
-  } catch (erro) {
-    exibirAviso(erro.message, "erro");
-  }
-};
-
-window.removerUsuario = async (id) => {
-  if (!confirm(`Deseja desativar/excluir o usuário #${id}?`)) return;
-  try {
-    await apiRequest(`/usuarios/${id}`, { method: "DELETE", autenticado: true });
-    exibirAviso("Usuário removido!");
-    await carregarTabelaUsuarios();
-  } catch (erro) {
-    exibirAviso(erro.message, "erro");
-  }
-};
+}

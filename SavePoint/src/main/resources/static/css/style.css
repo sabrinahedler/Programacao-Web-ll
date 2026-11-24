@@ -1031,6 +1031,7 @@ a.tag:hover { background: rgba(124,58,237,.35); }
   .sobre-etapa {
     transition: none;
   }
+}
 
 .admin-fieldset {
   border: 1px solid var(--line, #303342);
@@ -1051,4 +1052,57 @@ a.tag:hover { background: rgba(124,58,237,.35); }
   color-scheme: dark;
 }
 
+.historico-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.historico-topo h3 {
+  margin: 0 0 4px;
+}
+
+.historico-menor-preco {
+  color: var(--lime, #A3E635);
+  font-weight: 700;
+}
+
+#select-loja-historico {
+  display: inline-block !important;
+  margin-top: 8px;
+  padding: 8px 34px 8px 14px !important;
+  border-radius: var(--raio, 8px) !important;
+  background-color: var(--surface-2, #181a22) !important;
+  border: 1px solid var(--line, #303342) !important;
+  color: var(--white, #ffffff) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  outline: none !important;
+  cursor: pointer;
+  min-width: 130px;
+  max-width: 220px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239CA3AF' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: calc(100% - 10px) center !important;
+}
+
+#select-loja-historico:focus {
+  border-color: var(--purple, #7c3aed) !important;
+}
+
+#select-loja-historico option {
+  background-color: #12131a;
+  color: #fff;
+}
+
+.grafico-container {
+  position: relative;
+  height: 260px;
+  width: 100%;
 }

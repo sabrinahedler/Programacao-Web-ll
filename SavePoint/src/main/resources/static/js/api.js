@@ -211,6 +211,7 @@ const SavePointApi = {
   listarJogos: () => apiRequest("/jogos"),
   buscarJogo: (id) => apiRequest(`/jogos/${encodeURIComponent(id)}`),
   ofertasDoJogo: (id) => apiRequest(`/ofertas/${encodeURIComponent(id)}/comparacao`),
+  historicoOferta: (ofertaId) => apiRequest(`/ofertas/${encodeURIComponent(ofertaId)}/historico`),
 
   // avaliações
   listarAvaliacoes: (jogoId) => apiRequest(`/jogos/${encodeURIComponent(jogoId)}/avaliacoes`),
